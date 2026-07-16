@@ -1,0 +1,3454 @@
+
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PromptGuru AI — Universal Prompt Intelligence Engine</title>
+    <meta name="description" content="A 10-layer, fully local prompt intelligence engine — perspective rewriting, AI model optimization, scoring, ambiguity detection and more. No API key, runs entirely in your browser." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        /* ===== CYBERPUNK THEME ===== */
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: rgba(18, 18, 50, 0.85);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.06);
+            --text-primary: #f0f0ff;
+            --text-secondary: #b0b0d0;
+            --text-muted: #606090;
+            --accent-cyan: #00e5ff;
+            --accent-purple: #b388ff;
+            --accent-pink: #ff6ec7;
+            --accent-green: #00e676;
+            --accent-orange: #ffab40;
+            --accent-red: #ff5252;
+            --accent-yellow: #ffd740;
+            --neon-glow: 0 0 40px rgba(0, 229, 255, 0.08);
+            --shadow-card: 0 12px 48px rgba(0, 0, 0, 0.7);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            position: relative;
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(1.6);
+            -webkit-backdrop-filter: blur(20px) saturate(1.6);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-card);
+        }
+        .neon-text {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:focus-visible {
+            outline: 2px solid var(--accent-cyan);
+            outline-offset: 2px;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(179, 136, 255, 0.08));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .btn:hover::after {
+            opacity: 1;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 229, 255, 0.12);
+            border-color: rgba(0, 229, 255, 0.2);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            color: #0a0a1a;
+            font-weight: 700;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 8px 40px rgba(0, 229, 255, 0.25);
+            border-color: transparent;
+        }
+        .btn-primary::after {
+            display: none;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .btn-outline:hover {
+            background: rgba(0, 229, 255, 0.08);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.08);
+        }
+        .btn-success {
+            background: rgba(0, 230, 118, 0.12);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .btn-success:hover {
+            background: rgba(0, 230, 118, 0.22);
+        }
+        .btn-danger {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 82, 82, 0.08);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+        .btn-xs {
+            padding: 3px 10px;
+            font-size: 0.65rem;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        header {
+            padding: 14px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.88);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .logo-icon {
+            font-size: 1.6rem;
+        }
+        .logo span {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo small {
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            -webkit-text-fill-color: var(--text-muted);
+            background: none;
+            letter-spacing: 0.3px;
+            margin-left: 4px;
+        }
+        .logo .badge-ai {
+            font-size: 0.5rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 229, 255, 0.06);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            margin-left: 6px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hero {
+            padding: 20px 0 14px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(1.5rem, 3.8vw, 2.6rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            max-width: 640px;
+            margin: 6px auto 0;
+        }
+        .hero .tagline {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-bottom: 30px;
+        }
+        @media (max-width:1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: rgba(0, 229, 255, 0.06);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+        .card-title i {
+            color: var(--accent-cyan);
+        }
+        .card-title .badge {
+            font-size: 0.55rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: rgba(0, 229, 255, 0.06);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 229, 255, 0.06);
+        }
+        .card-title .badge.success {
+            background: rgba(0, 230, 118, 0.06);
+            color: var(--accent-green);
+            border-color: rgba(0, 230, 118, 0.08);
+        }
+        .card-title .badge.warning {
+            background: rgba(255, 171, 64, 0.06);
+            color: var(--accent-orange);
+            border-color: rgba(255, 171, 64, 0.08);
+        }
+        .card-title .badge.ai {
+            background: rgba(179, 136, 255, 0.08);
+            color: var(--accent-purple);
+            border-color: rgba(179, 136, 255, 0.08);
+        }
+        .card-title .badge.offline {
+            background: rgba(0, 229, 255, 0.04);
+            color: var(--text-muted);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .mt-3 {
+            margin-top: 18px;
+        }
+        .mt-4 {
+            margin-top: 24px;
+        }
+        .prompt-textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+            line-height: 1.7;
+            resize: vertical;
+            transition: var(--transition);
+            outline: none;
+        }
+        .prompt-textarea:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.03);
+        }
+        .prompt-textarea::placeholder {
+            color: var(--text-muted);
+        }
+        .prompt-textarea[readonly] {
+            color: var(--accent-cyan);
+            cursor: default;
+        }
+        .input-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .input-toolbar .btn {
+            font-size: 0.7rem;
+            padding: 5px 12px;
+        }
+        .input-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .input-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .input-stats .stat-value {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-family: var(--font-mono);
+        }
+        .tabs {
+            display: flex;
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 5px 14px;
+            border: none;
+            border-radius: var(--radius-xs);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            color: var(--text-secondary);
+        }
+        .tab-btn.active {
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.02);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .stat-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: var(--transition);
+        }
+        .stat-item:hover {
+            border-color: rgba(0, 229, 255, 0.04);
+        }
+        .stat-item .number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-item .number.green {
+            background: linear-gradient(135deg, var(--accent-green), #69f0ae);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-item .number.orange {
+            background: linear-gradient(135deg, var(--accent-orange), #ffd740);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-item .label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 8px;
+        }
+        @media (max-width:600px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .comparison-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.78rem;
+            max-height: 110px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .comparison-box .label-sm {
+            font-family: var(--font-sans);
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+        .comparison-box.diff-removed {
+            border-color: rgba(255, 82, 82, 0.1);
+            background: rgba(255, 82, 82, 0.02);
+        }
+        .comparison-box.diff-added {
+            border-color: rgba(0, 230, 118, 0.1);
+            background: rgba(0, 230, 118, 0.02);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .setting-group {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+        }
+        .setting-group label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .setting-group select,
+        .setting-group input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xs);
+            color: var(--text-primary);
+            padding: 5px 10px;
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .setting-group select:focus,
+        .setting-group input:focus {
+            border-color: var(--accent-cyan);
+        }
+        .setting-group .hint {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+        .setting-group .range-value {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+        }
+        footer {
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        @media (max-width:768px) {
+            .container {
+                padding: 0 14px;
+            }
+            .header-inner {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .header-actions {
+                justify-content: center;
+            }
+            .hero {
+                padding: 14px 0 10px;
+            }
+            .card {
+                padding: 12px 14px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .settings-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width:480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            .input-toolbar .btn {
+                font-size: 0.6rem;
+                padding: 3px 8px;
+            }
+            .tabs .tab-btn {
+                font-size: 0.6rem;
+                padding: 3px 8px;
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .delay-1 {
+            animation-delay: 0.05s;
+        }
+        .delay-2 {
+            animation-delay: 0.1s;
+        }
+        .delay-3 {
+            animation-delay: 0.15s;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .voice-active {
+            border-color: var(--accent-pink) !important;
+            box-shadow: 0 0 40px rgba(255, 110, 199, 0.1) !important;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .progress-ring {
+            width: 56px;
+            height: 56px;
+        }
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 5;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+        .progress-ring .fg {
+            stroke: var(--accent-cyan);
+            transition: stroke-dashoffset 0.6s ease;
+            stroke-dasharray: 150.8;
+            stroke-dashoffset: 150.8;
+        }
+        .progress-ring .label {
+            font-size: 0.55rem;
+            fill: var(--text-secondary);
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        .floating-dock {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 60px;
+            padding: 6px 14px;
+            display: flex;
+            gap: 10px;
+            z-index: 200;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .floating-dock .btn {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+        }
+        @media (min-width:769px) {
+            .floating-dock {
+                display: none;
+            }
+        }
+        .context-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .context-tag {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: rgba(0, 229, 255, 0.04);
+            border: 1px solid rgba(0, 229, 255, 0.05);
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+        .context-tag.intent {
+            background: rgba(179, 136, 255, 0.06);
+            border-color: rgba(179, 136, 255, 0.08);
+            color: var(--accent-purple);
+        }
+        .context-tag.entity {
+            background: rgba(0, 230, 118, 0.05);
+            border-color: rgba(0, 230, 118, 0.06);
+            color: var(--accent-green);
+        }
+        .context-tag.constraint {
+            background: rgba(255, 171, 64, 0.05);
+            border-color: rgba(255, 171, 64, 0.06);
+            color: var(--accent-orange);
+        }
+        .context-tag.structure {
+            background: rgba(0, 229, 255, 0.05);
+            border-color: rgba(0, 229, 255, 0.06);
+            color: var(--accent-cyan);
+        }
+        .history-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .history-entry:hover {
+            background: rgba(0, 229, 255, 0.02);
+            margin: 0 -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border-radius: var(--radius-xs);
+        }
+        .history-entry .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+        .history-entry .preview {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #historyList {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .output-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .output-actions .btn {
+            font-size: 0.7rem;
+            padding: 5px 12px;
+        }
+        .insight-banner {
+            background: rgba(0, 229, 255, 0.03);
+            border: 1px solid rgba(0, 229, 255, 0.05);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+        .insight-banner strong {
+            color: var(--text-primary);
+        }
+        .insight-banner .highlight {
+            color: var(--accent-cyan);
+        }
+        .insight-banner .highlight-purple {
+            color: var(--accent-purple);
+        }
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            padding: 4px 14px;
+            border-radius: 20px;
+            background: rgba(255, 82, 82, 0.06);
+            border: 1px solid rgba(255, 82, 82, 0.06);
+            color: var(--accent-red);
+        }
+        .model-status.ready {
+            background: rgba(0, 230, 118, 0.06);
+            border-color: rgba(0, 230, 118, 0.06);
+            color: var(--accent-green);
+        }
+        .model-status.loading {
+            background: rgba(255, 171, 64, 0.06);
+            border-color: rgba(255, 171, 64, 0.06);
+            color: var(--accent-orange);
+        }
+        .model-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .model-status .dot.red {
+            background: var(--accent-red);
+        }
+        .model-status .dot.green {
+            background: var(--accent-green);
+        }
+        .model-status .dot.orange {
+            background: var(--accent-orange);
+        }
+        .w-full {
+            width: 100%;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-sm {
+            font-size: 0.78rem;
+        }
+        .text-xs {
+            font-size: 0.65rem;
+        }
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .token-savings {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .token-savings.positive {
+            color: var(--accent-green);
+        }
+        .token-savings.negative {
+            color: var(--accent-red);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .model-progress {
+            margin-top: 6px;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-xs);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .model-progress .bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .model-progress .bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        .model-progress .status-text {
+            display: flex;
+            justify-content: space-between;
+        }
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 8px 0;
+        }
+        .engine-selector {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .engine-selector .chip {
+            padding: 3px 12px;
+            border-radius: 16px;
+            font-size: 0.6rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .engine-selector .chip:hover {
+            border-color: rgba(0, 229, 255, 0.12);
+            color: var(--text-secondary);
+        }
+        .engine-selector .chip.active {
+            background: rgba(0, 229, 255, 0.06);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .engine-selector .chip .check {
+            display: none;
+        }
+        .engine-selector .chip.active .check {
+            display: inline;
+        }
+
+        /* ===== ADVANCED INTELLIGENCE SUITE ===== */
+        .advanced-suite {
+            padding-bottom: 40px;
+        }
+        .suite-tabs {
+            display: flex;
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .suite-tab {
+            padding: 7px 14px;
+            border: none;
+            border-radius: var(--radius-xs);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .suite-tab:hover {
+            color: var(--text-secondary);
+        }
+        .suite-tab.active {
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--accent-cyan);
+        }
+        .suite-tab:focus-visible,
+        .chip:focus-visible,
+        .tab-btn:focus-visible {
+            outline: 2px solid var(--accent-cyan);
+            outline-offset: 2px;
+        }
+        .suite-panel {
+            display: none;
+        }
+        .suite-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .layer-badge {
+            font-size: 0.55rem;
+            padding: 2px 9px;
+            border-radius: 10px;
+            background: rgba(179, 136, 255, 0.08);
+            color: var(--accent-purple);
+            border: 1px solid rgba(179, 136, 255, 0.1);
+            font-weight: 600;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .chip-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .chip-select .chip {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.72rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-sans);
+        }
+        .chip-select .chip:hover {
+            border-color: rgba(0, 229, 255, 0.18);
+            color: var(--text-primary);
+        }
+        .chip-select .chip.active {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .missing-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .missing-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 11px;
+            border-radius: 14px;
+            background: rgba(255, 171, 64, 0.07);
+            border: 1px solid rgba(255, 171, 64, 0.12);
+            color: var(--accent-orange);
+            font-size: 0.66rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-sans);
+        }
+        .missing-chip:hover {
+            background: rgba(255, 171, 64, 0.14);
+        }
+        .missing-chip.ok {
+            background: rgba(0, 230, 118, 0.07);
+            border-color: rgba(0, 230, 118, 0.12);
+            color: var(--accent-green);
+            cursor: default;
+        }
+
+        .ambiguity-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            line-height: 1.85;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .vague-term {
+            background: rgba(255, 82, 82, 0.14);
+            color: #ff9a9a;
+            border-radius: 4px;
+            padding: 0 3px;
+            border-bottom: 1px dashed var(--accent-red);
+        }
+
+        .risk-meter {
+            height: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .risk-meter .fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .risk-low .fill {
+            background: linear-gradient(90deg, var(--accent-green), #69f0ae);
+        }
+        .risk-mid .fill {
+            background: linear-gradient(90deg, var(--accent-orange), #ffd740);
+        }
+        .risk-high .fill {
+            background: linear-gradient(90deg, var(--accent-red), #ff8a8a);
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 16px;
+            background: rgba(179, 136, 255, 0.08);
+            border: 1px solid rgba(179, 136, 255, 0.12);
+            color: var(--accent-purple);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .radar-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .radar-svg {
+            width: 220px;
+            height: 220px;
+            flex-shrink: 0;
+        }
+        .radar-grid {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.06);
+        }
+        .radar-axis {
+            stroke: rgba(255, 255, 255, 0.08);
+        }
+        .radar-label {
+            font-size: 7px;
+            fill: var(--text-muted);
+            font-family: var(--font-sans);
+            text-anchor: middle;
+        }
+        .radar-data {
+            fill: rgba(0, 229, 255, 0.16);
+            stroke: var(--accent-cyan);
+            stroke-width: 1.5;
+        }
+        .score-bars {
+            flex: 1;
+            min-width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+        .score-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.72rem;
+        }
+        .score-bar-row .name {
+            width: 90px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .score-bar-row .track {
+            flex: 1;
+            height: 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        .score-bar-row .track .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .score-bar-row .val {
+            width: 38px;
+            text-align: right;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+        .score-bar-row.overall {
+            margin-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 10px;
+        }
+        .score-bar-row.overall .name,
+        .score-bar-row.overall .val {
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .dna-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 229, 255, 0.12);
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .explain-list {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .explain-item {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: var(--radius-xs);
+        }
+        .explain-item i {
+            color: var(--accent-cyan);
+            margin-top: 3px;
+            font-size: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .template-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        .template-search {
+            flex: 1;
+            min-width: 160px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xs);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .template-search:focus {
+            border-color: var(--accent-cyan);
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .template-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            transition: var(--transition);
+        }
+        .template-card:hover {
+            border-color: rgba(0, 229, 255, 0.12);
+        }
+        .template-card .cat {
+            font-size: 0.58rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+        .template-card .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 4px 0 6px;
+        }
+        .template-card .preview {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            max-height: 52px;
+            overflow: hidden;
+            margin-bottom: 9px;
+            line-height: 1.5;
+        }
+
+        .compare-result {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+        }
+        .compare-result .pct {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .repair-issues {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .repair-issue {
+            font-size: 0.78rem;
+            padding: 7px 11px;
+            background: rgba(0, 230, 118, 0.05);
+            border-left: 2px solid var(--accent-green);
+            border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+            color: var(--text-secondary);
+        }
+
+        .about-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 15, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .about-modal-inner {
+            max-width: 580px;
+            width: 100%;
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+        .layer-row {
+            display: flex;
+            gap: 12px;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.8rem;
+        }
+        .layer-row .num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .layer-row .desc {
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        @media (max-width:600px) {
+            .radar-wrap {
+                flex-direction: column;
+            }
+            .score-bar-row .name {
+                width: 78px;
+            }
+            .about-modal-inner {
+                max-height: 88vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="container header-inner">
+            <a href="#" class="logo">
+                <span class="logo-icon">🧠</span>
+                <span>PromptGuru</span>
+                <small>Local AI</small>
+                <span class="badge-ai">⚡ 10-Layer Engine</span>
+            </a>
+            <div class="header-actions">
+                <div id="modelStatus" class="model-status ready">
+                    <span class="dot green"></span>
+                    <span>Engine: Local Rule-based</span>
+                </div>
+                <button class="btn btn-sm btn-outline" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                <button class="btn btn-sm btn-outline" id="settingsToggle" aria-label="Settings"><i class="fas fa-sliders-h"></i></button>
+                <button class="btn btn-sm btn-primary" id="optimizeBtn"><i class="fas fa-bolt"></i> Optimize</button>
+                <button class="btn btn-sm btn-outline" id="historyBtn" aria-label="History"><i class="fas fa-history"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Universal <span class="highlight">Prompt Intelligence</span><br /><span style="font-size:0.55em;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">10 Local AI Layers · No API Key</span></h1>
+            <p>Understands, scores, and rewrites any prompt — for any profession, for any AI model — entirely inside your browser.</p>
+            <div class="tagline">🧠 <strong>Local Rule Engine</strong> active — works 100% offline. Optional WebLLM (Gemma 2B) can be loaded for deeper AI understanding.</div>
+        </div>
+    </section>
+
+    <main class="container main-grid">
+        <div class="left-col">
+            <div class="card animate-in delay-1">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-pen-fancy"></i> Prompt Input <span class="badge" id="langBadge">Auto</span></div>
+                    <div class="tabs" id="inputTabs">
+                        <button class="tab-btn active" data-tab="original">Original</button>
+                        <button class="tab-btn" data-tab="raw">Raw</button>
+                    </div>
+                </div>
+                <textarea id="promptInput" class="prompt-textarea" placeholder="Paste any prompt — the local engine analyzes it instantly…" spellcheck="true">Explain quantum computing in simple terms for a beginner, including a real-world analogy and a short code example.</textarea>
+                <div class="input-toolbar">
+                    <button class="btn btn-sm" id="pasteBtn"><i class="fas fa-paste"></i> Paste</button>
+                    <button class="btn btn-sm" id="voiceBtn"><i class="fas fa-microphone"></i> Voice</button>
+                    <button class="btn btn-sm" id="clearBtn"><i class="fas fa-undo-alt"></i> Clear</button>
+                    <button class="btn btn-sm" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+                    <input type="file" id="fileInput" accept=".txt,.md,.json" style="display:none;" />
+                    <label class="btn btn-sm" style="cursor:pointer;">
+                        <i class="fas fa-upload"></i> Drag/Drop
+                        <input type="file" id="dropInput" accept=".txt,.md,.json" style="display:none;" multiple />
+                    </label>
+                </div>
+                <div class="input-stats" id="inputStats">
+                    <span><i class="far fa-file-alt"></i> Chars: <span class="stat-value" id="charCount">0</span></span>
+                    <span><i class="far fa-comment"></i> Words: <span class="stat-value" id="wordCount">0</span></span>
+                    <span><i class="fas fa-coins"></i> Est. Tokens: <span class="stat-value" id="tokenCount">0</span></span>
+                    <span><i class="fas fa-globe"></i> Lang: <span class="stat-value" id="langDisplay">detecting…</span></span>
+                </div>
+                <div class="context-tags" id="contextTags"></div>
+                <div class="text-xs text-muted mt-2">Missing context <span class="layer-badge">Layer 3</span></div>
+                <div class="missing-list" id="missingList"></div>
+                <div id="modelProgress" class="model-progress hidden">
+                    <div class="status-text">
+                        <span id="modelStatusText">Loading model…</span>
+                        <span id="modelPercent">0%</span>
+                    </div>
+                    <div class="bar"><div class="fill" id="modelProgressFill" style="width:0%"></div></div>
+                </div>
+            </div>
+
+            <div class="card animate-in delay-2 mt-3">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-chart-line"></i> Intelligence Dashboard</div>
+                    <span class="badge" id="qualityBadge">—</span>
+                </div>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-item"><div class="number" id="statChars">0</div><div class="label">Chars</div></div>
+                    <div class="stat-item"><div class="number" id="statWords">0</div><div class="label">Words</div></div>
+                    <div class="stat-item"><div class="number" id="statTokens">0</div><div class="label">Tokens</div></div>
+                    <div class="stat-item"><div class="number green" id="statCompression">0%</div><div class="label">Compression</div></div>
+                    <div class="stat-item"><div class="number" id="statSemantic">0%</div><div class="label">Semantic</div></div>
+                    <div class="stat-item"><div class="number" id="statReadability">0</div><div class="label">Readability</div></div>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center gap-2">
+                        <svg class="progress-ring" viewBox="0 0 60 60">
+                            <circle class="bg" cx="30" cy="30" r="24" />
+                            <circle class="fg" id="progressRing" cx="30" cy="30" r="24" stroke-dashoffset="150.8" />
+                            <text class="label" x="30" y="30" id="progressLabel">0%</text>
+                        </svg>
+                        <div>
+                            <div class="text-xs text-muted">Overall Quality</div>
+                            <div class="text-sm font-mono" id="qualityScore">—</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-muted" id="insightSummary">Ready</div>
+                </div>
+                <div class="mt-2 text-xs text-muted" id="engineHint">
+                    <i class="fas fa-info-circle"></i> Using <strong>Local Rule Engine</strong> — instant, private, works offline. Switch to WebLLM in Settings for deeper AI understanding.
+                </div>
+            </div>
+
+            <div class="card animate-in delay-3 mt-3 hidden" id="settingsCard">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-cog"></i> Settings</div>
+                    <button class="btn btn-sm" id="settingsCloseBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="settings-grid">
+                    <div class="setting-group" style="grid-column:1/-1;">
+                        <label>🧠 AI Engine</label>
+                        <div class="engine-selector" id="engineSelector">
+                            <span class="chip" data-engine="webllm"><span class="check">✓ </span>WebLLM (Gemma 2B)</span>
+                            <span class="chip active" data-engine="fallback"><span class="check">✓ </span>Local Rule Engine</span>
+                        </div>
+                        <div class="hint">Both run 100% locally. WebLLM downloads a model once; the Rule Engine needs no download and works instantly.</div>
+                    </div>
+                    <div class="setting-group">
+                        <label>⚡ Optimization Level</label>
+                        <select id="optLevel">
+                            <option value="conservative">Conservative</option>
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="aggressive">Aggressive</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>📝 Structure Mode</label>
+                        <select id="structureMode">
+                            <option value="preserve" selected>Preserve (keep original)</option>
+                            <option value="enhance">Enhance (add context)</option>
+                            <option value="minimal">Minimal (just rewrite)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>🌍 Target Language</label>
+                        <select id="targetLang">
+                            <option value="auto">Auto (preserve)</option>
+                            <option value="en">English</option>
+                            <option value="bn">Bangla</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ar">Arabic</option>
+                            <option value="ja">Japanese</option>
+                            <option value="zh">Chinese</option>
+                        </select>
+                        <div class="hint">Real translation needs WebLLM loaded — otherwise the output is tagged only.</div>
+                    </div>
+                    <div class="setting-group">
+                        <label>🧩 Chain-of-Thought</label>
+                        <select id="cotToggle">
+                            <option value="off">Off</option>
+                            <option value="on">On (add reasoning)</option>
+                            <option value="auto" selected>Auto (detect)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>💾 Auto Save</label>
+                        <select id="autoSave">
+                            <option value="on">On</option>
+                            <option value="off">Off</option>
+                        </select>
+                    </div>
+                    <div class="setting-group" style="grid-column:1/-1;">
+                        <label>📦 Model Management</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="btn btn-sm btn-outline" id="loadModelBtn"><i class="fas fa-download"></i> Load WebLLM</button>
+                            <button class="btn btn-sm btn-outline" id="clearCacheBtn"><i class="fas fa-trash-alt"></i> Clear Cache</button>
+                            <span class="text-xs text-muted" id="modelCacheInfo">Cache: empty</span>
+                        </div>
+                        <div class="hint">WebLLM model (~1.5GB) is downloaded once and cached in your browser only. The Local Rule Engine works immediately without any download.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card animate-in delay-2">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-robot"></i> Optimized Output <span class="badge success" id="outputBadge">Ready</span></div>
+                    <div class="tabs" id="outputTabs">
+                        <button class="tab-btn active" data-tab="optimized">Optimized</button>
+                        <button class="tab-btn" data-tab="preserved">Preserved</button>
+                        <button class="tab-btn" data-tab="english">English</button>
+                        <button class="tab-btn" data-tab="professional">Professional</button>
+                        <button class="tab-btn" data-tab="expert">Expert</button>
+                        <button class="tab-btn" data-tab="academic">Academic</button>
+                        <button class="tab-btn" data-tab="research">Research</button>
+                        <button class="tab-btn" data-tab="creative">Creative</button>
+                        <button class="tab-btn" data-tab="minimal">Minimal</button>
+                        <button class="tab-btn" data-tab="developer">Developer</button>
+                        <button class="tab-btn" data-tab="markdown">MD</button>
+                        <button class="tab-btn" data-tab="json">JSON</button>
+                        <button class="tab-btn" data-tab="yaml">YAML</button>
+                        <button class="tab-btn" data-tab="xml">XML</button>
+                    </div>
+                </div>
+                <textarea id="outputArea" class="prompt-textarea" readonly placeholder="Your optimized prompt will appear here…" style="color:var(--accent-cyan);"></textarea>
+                <div class="output-actions">
+                    <button class="btn btn-sm btn-primary" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="btn btn-sm btn-outline" id="downloadTxtBtn"><i class="fas fa-file-alt"></i> TXT</button>
+                    <button class="btn btn-sm btn-outline" id="downloadMdBtn"><i class="fas fa-file-markdown"></i> MD</button>
+                    <button class="btn btn-sm btn-outline" id="downloadJsonBtn"><i class="fas fa-code"></i> JSON</button>
+                    <button class="btn btn-sm" id="resetOutputBtn"><i class="fas fa-sync-alt"></i> Reset</button>
+                </div>
+                <div class="input-stats" id="outputStats">
+                    <span><i class="far fa-file-alt"></i> Chars: <span class="stat-value" id="outChars">0</span></span>
+                    <span><i class="far fa-comment"></i> Words: <span class="stat-value" id="outWords">0</span></span>
+                    <span><i class="fas fa-coins"></i> Tokens: <span class="stat-value" id="outTokens">0</span></span>
+                    <span><i class="fas fa-compress-alt"></i> Compression: <span class="stat-value" id="outCompression">0%</span></span>
+                    <span><i class="fas fa-brain" style="color:var(--accent-purple);"></i> Engine: <span class="stat-value" id="outEngine">—</span></span>
+                </div>
+            </div>
+
+            <div class="card animate-in delay-3 mt-3">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-code-compare"></i> Comparison</div>
+                    <span class="badge" id="compareBadge">Diff</span>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-box" id="originalCompare">
+                        <span class="label-sm"><i class="fas fa-file"></i> Original</span>
+                        <span id="originalCompareText">—</span>
+                    </div>
+                    <div class="comparison-box diff-added" id="optimizedCompare">
+                        <span class="label-sm"><i class="fas fa-check-circle" style="color:var(--accent-green);"></i> Optimized</span>
+                        <span id="optimizedCompareText">—</span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 mt-2 text-xs text-muted">
+                    <span>Token diff: <strong id="tokenDiff" style="color:var(--accent-cyan);">0</strong></span>
+                    <span>Compression: <strong id="compressionDiff" style="color:var(--accent-green);">0%</strong></span>
+                    <span>Semantic: <strong id="semanticPreserved" style="color:var(--accent-purple);">—</strong></span>
+                    <span>Method: <strong id="methodStatus" style="color:var(--accent-cyan);">—</strong></span>
+                </div>
+                <div class="insight-banner" id="insightBanner">
+                    💡 <strong>AI Insight:</strong> <span id="insightText">Type a prompt above — the local engine analyzes it as you type.</span>
+                </div>
+            </div>
+
+            <div class="card animate-in delay-3 mt-3 hidden" id="historyCard">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-history"></i> History</div>
+                    <button class="btn btn-sm" id="historyCloseBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="historyList"><p class="text-muted text-sm">No history yet.</p></div>
+                <button class="btn btn-sm btn-outline btn-danger mt-2" id="clearHistoryBtn">Clear History</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="container advanced-suite">
+        <div class="card animate-in">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-dna"></i> Advanced Intelligence Suite <span class="badge ai">Layers 6-10 + extras</span></div>
+                <button class="btn btn-sm btn-outline" id="aboutBtn"><i class="fas fa-layer-group"></i> Architecture</button>
+            </div>
+            <div class="suite-tabs" id="suiteTabs">
+                <button class="suite-tab active" data-panel="perspective" type="button">🎭 Perspective</button>
+                <button class="suite-tab" data-panel="models" type="button">🤖 AI Models</button>
+                <button class="suite-tab" data-panel="score" type="button">📈 Score</button>
+                <button class="suite-tab" data-panel="insights" type="button">🧬 Insights</button>
+                <button class="suite-tab" data-panel="flags" type="button">⚠️ Flags</button>
+                <button class="suite-tab" data-panel="similarity" type="button">🔀 Similarity</button>
+                <button class="suite-tab" data-panel="templates" type="button">📁 Templates</button>
+                <button class="suite-tab" data-panel="repair" type="button">🩹 Repair</button>
+            </div>
+
+            <div class="suite-panel active" id="panel-perspective">
+                <div class="text-xs text-muted">Rewrite your current prompt for a specific profession's point of view.<span class="layer-badge">Layer 6 · Perspective Engine</span></div>
+                <div class="chip-select mt-2" id="professionChips"></div>
+                <div class="prompt-textarea mt-2" id="perspectiveOutput" style="min-height:100px;color:var(--accent-purple);white-space:pre-wrap;">Select a profession above.</div>
+                <div class="output-actions">
+                    <button class="btn btn-sm btn-outline" id="copyPerspectiveBtn"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="btn btn-sm" id="usePerspectiveBtn"><i class="fas fa-arrow-left"></i> Use as Input</button>
+                </div>
+            </div>
+
+            <div class="suite-panel" id="panel-models">
+                <div class="text-xs text-muted">Style your prompt for a specific AI assistant.<span class="layer-badge">Layer 7 · Model Optimizer</span></div>
+                <div class="chip-select mt-2" id="modelChips"></div>
+                <div class="text-xs text-muted mt-2" id="modelHint"></div>
+                <div class="prompt-textarea mt-2" id="modelOutput" style="min-height:100px;color:var(--accent-cyan);white-space:pre-wrap;">Select a model above.</div>
+                <div class="output-actions">
+                    <button class="btn btn-sm btn-outline" id="copyModelBtn"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="btn btn-sm" id="useModelBtn"><i class="fas fa-arrow-left"></i> Use as Input</button>
+                </div>
+            </div>
+
+            <div class="suite-panel" id="panel-score">
+                <div class="text-xs text-muted">A 7-dimension quality breakdown of your current prompt, scored locally.<span class="layer-badge">Layer 9 · Prompt Score</span></div>
+                <div class="radar-wrap" id="radarWrap"></div>
+            </div>
+
+            <div class="suite-panel" id="panel-insights">
+                <div class="text-xs text-muted">A unique fingerprint for this prompt, plus a plain-language explanation of what changed and why.<span class="layer-badge">Layer 10 · Explainability</span></div>
+                <div class="mt-3"><span class="dna-badge" id="dnaBadge"><i class="fas fa-fingerprint"></i> PDNA-0000-0000</span></div>
+                <div class="explain-list" id="explainList"></div>
+            </div>
+
+            <div class="suite-panel" id="panel-flags">
+                <div class="text-xs text-muted">Ambiguity, hallucination risk, and auto-detected role — all local heuristics, none of it phones home.<span class="layer-badge">Quality Flags</span></div>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between text-sm"><span>Ambiguity</span><span id="ambiguityPct" class="font-mono">0%</span></div>
+                    <div class="risk-meter risk-low" id="ambiguityMeter"><div class="fill" style="width:0%"></div></div>
+                    <div class="ambiguity-preview mt-2" id="ambiguityPreview">Start typing a prompt to see flagged terms here.</div>
+                </div>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between text-sm"><span>Hallucination Risk</span><span id="riskPct" class="font-mono">0%</span></div>
+                    <div class="risk-meter risk-low" id="riskMeter"><div class="fill" style="width:0%"></div></div>
+                    <div class="text-xs text-muted mt-1" id="riskNote"></div>
+                </div>
+                <div class="mt-3">
+                    <div class="text-sm mb-1">Auto-Detected Role</div>
+                    <span class="role-badge" id="roleBadge">🔎 No strong match yet</span>
+                </div>
+            </div>
+
+            <div class="suite-panel" id="panel-similarity">
+                <div class="text-xs text-muted">Compare your main prompt against a second one for semantic overlap.<span class="layer-badge">Prompt Similarity</span></div>
+                <textarea id="compareInput" class="prompt-textarea mt-2" style="min-height:90px;" placeholder="Paste a second prompt to compare against your main input…"></textarea>
+                <button class="btn btn-sm btn-primary mt-2" id="compareBtn"><i class="fas fa-code-compare"></i> Compare</button>
+                <div class="compare-result hidden" id="compareResult">
+                    <div class="pct" id="comparePct">0%</div>
+                    <div><div class="text-sm" id="compareVerdict">—</div><div class="text-xs text-muted" id="compareShared"></div></div>
+                </div>
+            </div>
+
+            <div class="suite-panel" id="panel-templates">
+                <div class="text-xs text-muted">A curated local library across 10 categories — click any card to load it into your input.<span class="layer-badge">Prompt Templates</span></div>
+                <div class="template-controls mt-2">
+                    <input type="text" id="templateSearch" class="template-search" placeholder="Search 50 templates…" />
+                </div>
+                <div class="chip-select mt-2" id="templateCats"></div>
+                <div class="template-grid mt-2" id="templateGrid"></div>
+            </div>
+
+            <div class="suite-panel" id="panel-repair">
+                <div class="text-xs text-muted">Fixes spacing, capitalization, punctuation, and common typos, and flags likely truncation — it never invents new content for you.<span class="layer-badge">Prompt Repair</span></div>
+                <button class="btn btn-sm btn-primary mt-2" id="repairBtn"><i class="fas fa-band-aid"></i> Repair Current Prompt</button>
+                <div class="prompt-textarea mt-2 hidden" id="repairOutput" style="min-height:80px;color:var(--accent-green);white-space:pre-wrap;"></div>
+                <div class="repair-issues" id="repairIssues"></div>
+                <div class="output-actions hidden" id="repairActions">
+                    <button class="btn btn-sm" id="useRepairBtn"><i class="fas fa-arrow-left"></i> Use as Input</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="about-modal hidden" id="aboutModal">
+        <div class="card about-modal-inner">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-layer-group"></i> The 10-Layer Architecture</div>
+                <button class="btn btn-sm" id="aboutCloseBtn" aria-label="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="layerList"></div>
+        </div>
+    </div>
+
+    <div class="floating-dock" id="floatingDock">
+        <button class="btn btn-sm btn-primary" id="dockOptimizeBtn" aria-label="Optimize"><i class="fas fa-bolt"></i></button>
+        <button class="btn btn-sm btn-outline" id="dockHistoryBtn" aria-label="History"><i class="fas fa-history"></i></button>
+        <button class="btn btn-sm btn-outline" id="dockSettingsBtn" aria-label="Settings"><i class="fas fa-sliders-h"></i></button>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🧠 PromptGuru AI — "Understands. Scores. Rewrites. Never leaves your device."</p>
+            <p style="margin-top:3px;font-size:0.6rem;">Local Rule Engine active by default · Optional WebLLM (Gemma 2B) · <span class="neon-text">No data leaves your browser</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // ================================================================
+        //  UTILITY MODULE
+        // ================================================================
+        const Utils = {
+            estimateTokens(text) {
+                if (!text) return 0;
+                const cjk = (text.match(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/g) || []).length;
+                const words = text.trim().split(/\s+/).length;
+                const chars = text.length;
+                if (cjk > chars * 0.25) return Math.round(chars / 1.8);
+                return Math.round(chars / 4 + words * 0.4);
+            },
+            countWords(text) { return text ? text.trim().split(/\s+/).filter(Boolean).length : 0; },
+            countChars(text) { return text ? text.length : 0; },
+            detectLanguage(text) {
+                if (!text || text.trim().length < 3) return 'unknown';
+                const s = text.trim().slice(0, 300);
+                const cjk = (s.match(/[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/g) || []).length;
+                const arabic = (s.match(/[\u0600-\u06ff]/g) || []).length;
+                const bengali = (s.match(/[\u0980-\u09ff]/g) || []).length;
+                const devanagari = (s.match(/[\u0900-\u097f]/g) || []).length;
+                const thai = (s.match(/[\u0e00-\u0e7f]/g) || []).length;
+                const total = s.length;
+                if (total === 0) return 'unknown';
+                if (cjk / total > 0.25) return 'zh';
+                if (arabic / total > 0.15) return 'ar';
+                if (bengali / total > 0.15) return 'bn';
+                if (devanagari / total > 0.15) return 'hi';
+                if (thai / total > 0.15) return 'th';
+                const engChars = (s.match(/[a-zA-Z]/g) || []).length;
+                if (engChars / total > 0.35) return 'en';
+                return 'unknown';
+            },
+            getLanguageName(code) {
+                const map = { en: 'English', bn: 'Bangla', hi: 'Hindi', ar: 'Arabic', ja: 'Japanese', zh: 'Chinese',
+                    th: 'Thai', unknown: 'Unknown' };
+                return map[code] || code;
+            },
+            jaccardSimilarity(a, b) {
+                if (!a || !b) return 0;
+                const wordsA = new Set(a.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+                const wordsB = new Set(b.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+                if (wordsA.size === 0 || wordsB.size === 0) return 0;
+                const inter = new Set([...wordsA].filter(x => wordsB.has(x)));
+                const union = new Set([...wordsA, ...wordsB]);
+                return inter.size / union.size;
+            },
+            readability(text) {
+                if (!text) return 0;
+                const words = text.trim().split(/\s+/).length;
+                const sentences = (text.match(/[.!?]+/g) || []).length || 1;
+                const syllables = (text.match(/[aeiouyAEIOUY]/g) || []).length;
+                if (words === 0) return 0;
+                const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / Math.max(words, 1));
+                return Math.min(100, Math.max(0, Math.round(score)));
+            },
+            truncate(str, len = 60) {
+                if (!str) return '';
+                return str.length > len ? str.slice(0, len) + '…' : str;
+            },
+            escapeHTML(s) {
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
+                    '&quot;').replace(/'/g, '&#39;');
+            }
+        };
+
+        // ================================================================
+        //  KNOWLEDGE BASE
+        // ================================================================
+        const KB = {
+            DOMAIN_KEYWORDS: {
+                'Technology': ['ai', 'software', 'app', 'code', 'algorithm', 'computer', 'data', 'api', 'cloud',
+                    'cyber'
+                ],
+                'Medicine': ['health', 'disease', 'symptom', 'treatment', 'patient', 'doctor', 'medicine',
+                    'diagnosis'
+                ],
+                'Business': ['revenue', 'startup', 'market', 'roi', 'strategy', 'sales', 'customer', 'profit'],
+                'Education': ['student', 'classroom', 'lesson', 'curriculum', 'teach', 'learn', 'school'],
+                'Legal': ['contract', 'law', 'legal', 'regulation', 'clause', 'compliance', 'lawsuit'],
+                'Science': ['experiment', 'hypothesis', 'research', 'theory', 'physics', 'biology', 'chemistry'],
+                'Marketing': ['brand', 'campaign', 'audience', 'seo', 'advertisement', 'content', 'social media'],
+                'Finance': ['investment', 'stock', 'budget', 'tax', 'loan', 'interest', 'portfolio'],
+                'Creative Writing': ['story', 'poem', 'character', 'plot', 'novel', 'fiction'],
+                'Design': ['ui', 'ux', 'layout', 'color palette', 'typography', 'wireframe']
+            },
+            VAGUE_TERMS: ['some', 'many', 'a few', 'often', 'sometimes', 'good', 'nice', 'bad', 'stuff', 'things',
+                'thing', 'etc', 'and so on', 'maybe', 'possibly', 'kind of', 'sort of', 'various', 'several',
+                'basically', 'somehow', 'somewhat', 'a lot'
+            ],
+            PRECISION_DEMANDS: ['exact number', 'precise figure', 'statistics', 'citation', 'specific date',
+                'specific study', 'give me a source', 'reference for', 'percentage of', 'exact quote'
+            ],
+            TYPO_MAP: { teh: 'the', recieve: 'receive', seperate: 'separate', definately: 'definitely',
+                occured: 'occurred', wich: 'which', becuase: 'because', thier: 'their', tommorow: 'tomorrow' },
+            FILLERS: ['very', 'really', 'actually', 'basically', 'literally', 'seriously', 'totally', 'absolutely',
+                'quite', 'extremely', 'incredibly'
+            ],
+
+            PROFESSIONS: [
+                { id: 'doctor', name: 'Doctor', icon: '🩺', focus: 'medical diagnosis, clinical relevance, and patient care',
+                    tone: 'precise and evidence-based', keywords: ['patient', 'diagnosis', 'symptom', 'treatment',
+                        'clinical', 'disease', 'medicine', 'doctor', 'health'
+                    ] },
+                { id: 'engineer', name: 'Engineer', icon: '⚙️', focus: 'technical implementation, systems design, and automation',
+                    tone: 'structured and technical', keywords: ['system', 'architecture', 'build', 'implement',
+                        'automate', 'engineering', 'infrastructure'
+                    ] },
+                { id: 'teacher', name: 'Teacher', icon: '📚', focus: 'classroom-friendly explanation and pedagogy',
+                    tone: 'clear and educational', keywords: ['classroom', 'lesson', 'curriculum', 'teach',
+                        'students', 'pedagogy'
+                    ] },
+                { id: 'student', name: 'Student', icon: '🎓', focus: 'simple language with relatable, easy-to-follow examples',
+                    tone: 'accessible and encouraging', keywords: ['homework', 'exam', 'study', 'assignment',
+                        'learn', 'course'
+                    ] },
+                { id: 'business', name: 'Business Executive', icon: '💼', focus: 'ROI, strategy, and measurable business impact',
+                    tone: 'results-oriented', keywords: ['revenue', 'roi', 'strategy', 'stakeholder', 'market',
+                        'profit'
+                    ] },
+                { id: 'researcher', name: 'Researcher', icon: '🔬', focus: 'academic rigor, methodology, and citation-backed claims',
+                    tone: 'formal and precise', keywords: ['hypothesis', 'methodology', 'literature', 'citation',
+                        'study', 'experiment'
+                    ] },
+                { id: 'lawyer', name: 'Lawyer', icon: '⚖️', focus: 'legal implications, regulatory context, and risk',
+                    tone: 'precise and risk-aware', keywords: ['contract', 'law', 'regulation', 'clause',
+                        'compliance', 'liability'
+                    ] },
+                { id: 'designer', name: 'Designer', icon: '🎨', focus: 'visual language, UX flow, and creative workflow',
+                    tone: 'creative and expressive', keywords: ['design', 'layout', 'ui', 'ux', 'typography',
+                        'wireframe', 'visual'
+                    ] },
+                { id: 'marketer', name: 'Marketer', icon: '📣', focus: 'audience engagement, messaging, and growth metrics',
+                    tone: 'persuasive and audience-focused', keywords: ['campaign', 'audience', 'brand', 'seo',
+                        'conversion', 'ad'
+                    ] },
+                { id: 'developer', name: 'Developer', icon: '💻', focus: 'code structure, implementation detail, and best practices',
+                    tone: 'technical and exact', keywords: ['code', 'function', 'api', 'bug', 'repository',
+                        'deploy'
+                    ] },
+                { id: 'writer', name: 'Writer', icon: '✍️', focus: 'narrative voice, style, and storytelling craft',
+                    tone: 'expressive and vivid', keywords: ['story', 'narrative', 'character', 'plot', 'chapter',
+                        'manuscript'
+                    ] },
+                { id: 'datascientist', name: 'Data Scientist', icon: '📊', focus: 'data patterns, statistical reasoning, and model evaluation',
+                    tone: 'analytical and evidence-driven', keywords: ['dataset', 'model', 'statistics',
+                        'regression', 'analysis', 'metric'
+                    ] },
+                { id: 'entrepreneur', name: 'Entrepreneur', icon: '🚀', focus: 'lean execution, practical constraints, and startup context',
+                    tone: 'pragmatic and action-oriented', keywords: ['startup', 'founder', 'pitch', 'funding',
+                        'mvp', 'growth'
+                    ] },
+                { id: 'parent', name: 'Parent', icon: '👨‍👩‍👧', focus: 'everyday practicality and family-friendly relevance',
+                    tone: 'warm and practical', keywords: ['kids', 'family', 'parenting', 'child', 'home',
+                        'school'
+                    ] }
+            ],
+
+            AI_MODELS: [
+                { id: 'chatgpt', name: 'ChatGPT', icon: '🤖',
+                    hint: 'Add clear headings and bullet structure for readability.',
+                apply: (t) => `${t}\n\nUse clear headings and bullet points where helpful.` },
+                { id: 'claude', name: 'Claude', icon: '✦', hint: 'Invite step-by-step reasoning before the final answer.',
+                    apply: (t) => `${t}\n\nThink through the problem step by step, then give the final answer.` },
+                { id: 'gemini', name: 'Gemini', icon: '♊', hint: 'Ask it to ground claims and note uncertainty.',
+                    apply: (t) => `${t}\n\nGround the answer in verifiable information and note any uncertainty.` },
+                { id: 'deepseek', name: 'DeepSeek', icon: '🐋',
+                    hint: 'Emphasize step-by-step reasoning for technical or math parts.',
+                apply: (t) => `${t}\n\nShow step-by-step reasoning, especially for technical or mathematical parts.` },
+                { id: 'qwen', name: 'Qwen', icon: '🌐', hint: 'Useful for bilingual or multilingual responses.',
+                    apply: (t) => `${t}\n\nRespond concisely; support both English and the original language of this prompt.` },
+                { id: 'llama', name: 'Llama', icon: '🦙', hint: 'Ask for a direct answer with minimal preamble.',
+                    apply: (t) => `${t}\n\nBe direct — skip preamble and get straight to the answer.` },
+                { id: 'mistral', name: 'Mistral', icon: '🌬️', hint: 'Favor efficient, non-redundant phrasing.',
+                    apply: (t) => `${t}\n\nKeep the response efficient and avoid redundancy.` }
+            ],
+
+            TEMPLATES: [
+                { cat: 'Writing', title: 'Blog Post Outline',
+                text: 'Write a detailed blog post outline about [topic], including an introduction hook, 4-6 main sections with subpoints, and a conclusion with a call to action. Target audience: [audience].' },
+                { cat: 'Writing', title: 'Product Description',
+                    text: 'Write a compelling product description for [product], highlighting its key features and benefits. Keep it under 150 words and match a [tone] tone.' },
+                { cat: 'Writing', title: 'Email Newsletter',
+                    text: 'Draft a newsletter email about [topic] for [audience]. Include a subject line, a short intro, 3 key updates, and one clear call to action.' },
+                { cat: 'Writing', title: 'Short Story Starter',
+                    text: 'Write the opening paragraph of a short story set in [setting], featuring a character who [trait/goal]. Establish tone and voice in the first two sentences.' },
+                { cat: 'Writing', title: 'Press Release',
+                    text: 'Write a press release announcing [event/product]. Include a headline, dateline, quote from [role], and boilerplate paragraph.' },
+
+                { cat: 'Coding', title: 'Code Review',
+                    text: 'Review the following code for bugs, performance issues, and style problems. Suggest specific fixes with brief explanations:\n\n[paste code]' },
+                { cat: 'Coding', title: 'Bug Report Analysis',
+                    text: 'Given this bug report and stack trace, identify the likely root cause and suggest a fix:\n\n[paste bug report / stack trace]' },
+                { cat: 'Coding', title: 'Refactoring Request',
+                    text: 'Refactor this code to improve readability and maintainability without changing its behavior. Explain each change:\n\n[paste code]' },
+                { cat: 'Coding', title: 'API Documentation',
+                    text: 'Write clear API documentation for this endpoint, including method, parameters, example request, and example response:\n\n[paste endpoint details]' },
+                { cat: 'Coding', title: 'Unit Test Generator',
+                    text: 'Write unit tests for the following function, covering typical cases, edge cases, and error handling:\n\n[paste function]' },
+
+                { cat: 'Medical', title: 'Explain a Medical Term',
+                    text: 'Explain [medical term] in plain language for a general audience. This is for general education only, not a diagnosis.' },
+                { cat: 'Medical', title: 'Wellness Tips Summary',
+                    text: 'Summarize evidence-based general wellness tips for [topic, e.g. sleep/hydration]. Keep it practical and non-prescriptive.' },
+                { cat: 'Medical', title: 'Medication Info (General)',
+                    text: 'Give a general, non-diagnostic overview of what [medication] is commonly used for and typical general precautions. Note this is educational only, not medical advice.' },
+                { cat: 'Medical', title: 'Health Article Summary',
+                    text: 'Summarize the key takeaways of this health article in plain language, in 5 bullet points:\n\n[paste article]' },
+                { cat: 'Medical', title: 'Symptom Education (General)',
+                    text: 'Explain, in general educational terms, what commonly causes [symptom]. Make clear this is not a diagnosis and a doctor should be consulted.' },
+
+                { cat: 'Research', title: 'Literature Review Summary',
+                    text: 'Summarize the current state of research on [topic], covering major findings, disagreements, and open questions.' },
+                { cat: 'Research', title: 'Research Question Formulation',
+                    text: 'Help me turn this broad interest into a focused, answerable research question: [topic/interest].' },
+                { cat: 'Research', title: 'Methodology Outline',
+                    text: 'Outline a research methodology to study [research question], including data collection method, sample, and analysis approach.' },
+                { cat: 'Research', title: 'Data Analysis Plan',
+                    text: 'Propose a data analysis plan for [dataset/question], including which statistical tests or models would be appropriate and why.' },
+                { cat: 'Research', title: 'Survey Question Design',
+                    text: 'Draft 8 survey questions to measure [construct] for [target population], mixing Likert-scale and open-ended items.' },
+
+                { cat: 'SEO', title: 'Meta Description Generator',
+                    text: 'Write 3 SEO meta description options (under 155 characters each) for a page about [topic], targeting the keyword "[keyword]".' },
+                { cat: 'SEO', title: 'Keyword Cluster Ideas',
+                    text: 'Suggest a keyword cluster (10-15 related terms) around the core topic "[topic]" for content planning.' },
+                { cat: 'SEO', title: 'Title Tag Optimizer',
+                    text: 'Rewrite this page title to be more SEO-friendly while staying under 60 characters and including "[keyword]": [current title]' },
+                { cat: 'SEO', title: 'Content Gap Analysis',
+                    text: 'Given this list of competitor article topics, identify content gaps I could target for [my topic/niche]: [paste list]' },
+                { cat: 'SEO', title: 'FAQ Schema Draft',
+                    text: 'Write 5 FAQ question-and-answer pairs about [topic] suitable for an FAQ schema block.' },
+
+                { cat: 'Marketing', title: 'Ad Copy Variations',
+                    text: 'Write 5 short ad copy variations (under 30 words each) for [product/service], targeting [audience], with a [tone] tone.' },
+                { cat: 'Marketing', title: 'Social Media Caption',
+                    text: 'Write 3 social media caption options for a post about [topic/product], including relevant hashtags, for [platform].' },
+                { cat: 'Marketing', title: 'Campaign Brief',
+                    text: 'Draft a one-page campaign brief for [campaign idea], including objective, target audience, key message, and channels.' },
+                { cat: 'Marketing', title: 'Customer Persona',
+                    text: 'Build a customer persona for [product/service], including demographics, goals, pain points, and buying triggers.' },
+                { cat: 'Marketing', title: 'Value Proposition Statement',
+                    text: 'Write a one-sentence value proposition for [product/service] aimed at [audience], clearly stating the core benefit.' },
+
+                { cat: 'Legal', title: 'Explain a Legal Term',
+                    text: 'Explain [legal term] in plain language for a non-lawyer. This is general education only, not legal advice.' },
+                { cat: 'Legal', title: 'Contract Clause Summary',
+                    text: 'Summarize in plain language what this clause generally means: [paste clause]. General education only, not legal advice.' },
+                { cat: 'Legal', title: 'Terms of Service Outline',
+                    text: 'Outline the typical sections a Terms of Service document for [type of product/service] should cover.' },
+                { cat: 'Legal', title: 'Compliance Checklist Draft',
+                    text: 'Draft a general compliance checklist outline for a small business handling [type of data/activity]. Not a substitute for legal counsel.' },
+                { cat: 'Legal', title: 'NDA Summary Request',
+                    text: 'Summarize in plain language the general purpose and typical sections of an NDA. General education only, not legal advice.' },
+
+                { cat: 'Education', title: 'Lesson Plan Generator',
+                    text: 'Create a lesson plan for teaching [topic] to [grade level/age group], including objectives, activities, and a short assessment.' },
+                { cat: 'Education', title: 'Quiz Question Set',
+                    text: 'Write 8 quiz questions (mixed multiple-choice and short-answer) testing understanding of [topic] for [grade level].' },
+                { cat: 'Education', title: 'Concept Explainer for Students',
+                    text: 'Explain [concept] to a [grade level] student using a simple analogy and one worked example.' },
+                { cat: 'Education', title: 'Study Guide Outline',
+                    text: 'Create a study guide outline for [subject/topic], organized by key concepts, with a short summary under each.' },
+                { cat: 'Education', title: 'Rubric Generator',
+                    text: 'Create a 4-level grading rubric for a [assignment type] on [topic], covering [criteria list].' },
+
+                { cat: 'YouTube', title: 'Video Script Outline',
+                    text: 'Outline a [length]-minute YouTube video script about [topic], including a hook, 3 main points, and a call to action.' },
+                { cat: 'YouTube', title: 'Video Title & Thumbnail Ideas',
+                    text: 'Suggest 5 clickable but accurate YouTube titles and matching thumbnail text ideas for a video about [topic].' },
+                { cat: 'YouTube', title: 'Video Description Generator',
+                    text: 'Write a YouTube video description for a video about [topic], including a short summary, timestamps placeholder, and relevant tags.' },
+                { cat: 'YouTube', title: 'Content Calendar Ideas',
+                    text: 'Suggest 10 video ideas for a YouTube channel about [niche], mixing evergreen and trending formats.' },
+                { cat: 'YouTube', title: 'Hook/Intro Script',
+                    text: 'Write 3 alternative 10-second hook lines to open a video about [topic], designed to stop someone from scrolling.' },
+
+                { cat: 'Business', title: 'SWOT Analysis',
+                    text: 'Create a SWOT analysis for [company/product], covering strengths, weaknesses, opportunities, and threats.' },
+                { cat: 'Business', title: 'Business Plan Summary',
+                    text: 'Write a one-page business plan summary for [business idea], covering problem, solution, market, and business model.' },
+                { cat: 'Business', title: 'Meeting Agenda',
+                    text: 'Draft a meeting agenda for a [duration] meeting about [topic], with time-boxed items and a clear objective for each.' },
+                { cat: 'Business', title: 'Executive Summary',
+                    text: 'Write an executive summary (under 200 words) of this report, highlighting the key findings and recommendation:\n\n[paste report]' },
+                { cat: 'Business', title: 'Pitch Deck Outline',
+                    text: 'Outline a 10-slide investor pitch deck for [business idea], listing what each slide should cover.' }
+            ],
+
+            LAYERS: [
+                { n: 1, name: 'Input Understanding',
+                desc: 'Reads the raw prompt and extracts intent, topic, audience, tone, and length before anything else happens.' },
+                { n: 2, name: 'Semantic Analysis',
+                    desc: 'Pulls out intent, entities, domain, constraints, and complexity using local pattern matching — no data leaves the browser.' },
+                { n: 3, name: 'Missing Context Detection',
+                    desc: 'Flags what a good prompt usually needs but this one is missing — audience, format, length, examples, tone.' },
+                { n: 4, name: 'Prompt Enhancement',
+                    desc: 'Rewrites the prompt to be clearer and more complete based on what Layers 1-3 found.' },
+                { n: 5, name: 'Token Optimization',
+                    desc: 'Strips filler and redundancy so the same meaning costs fewer tokens.' },
+                { n: 6, name: 'Perspective Engine',
+                    desc: 'Reframes the same prompt for 14 different professional points of view — Doctor, Engineer, Lawyer, and more.' },
+                { n: 7, name: 'AI Model Optimizer',
+                    desc: 'Adjusts prompt style for ChatGPT, Claude, Gemini, DeepSeek, Qwen, Llama, and Mistral.' },
+                { n: 8, name: 'Output Generator',
+                    desc: 'Produces 14 output variants — Professional, Expert, Academic, Developer, JSON, YAML, and more.' },
+                { n: 9, name: 'Prompt Score',
+                    desc: 'Scores Clarity, Context, Specificity, Token Efficiency, Reasoning, Completeness, and Precision on a radar chart.' },
+                { n: 10, name: 'Explainability',
+                    desc: 'Explains exactly what changed, why, and how confident the local engine is — plus a unique Prompt DNA fingerprint.' }
+            ]
+        };
+
+        // ================================================================
+        //  FALLBACK ENGINE (rule-based) — FULLY WORKING, NO DOWNLOAD REQUIRED
+        // ================================================================
+        class FallbackEngine {
+            analyze(text) {
+                const lower = text.toLowerCase();
+                const words = text.trim().split(/\s+/).filter(Boolean);
+                const wordCount = words.length;
+
+                let intent = 'general';
+                const intentMap = {
+                    explanation: ['explain', 'describe', 'what is', 'how does', 'why does', 'tell me about'],
+                    generation: ['write', 'create', 'generate', 'compose', 'craft'],
+                    summarization: ['summarize', 'summary', 'condense', 'brief'],
+                    translation: ['translate', 'convert to'],
+                    analysis: ['analyze', 'analysis', 'examine', 'evaluate'],
+                    coding: ['code', 'program', 'function', 'class', 'algorithm', 'debug'],
+                    comparison: ['compare', 'contrast', 'versus', ' vs'],
+                    instruction: ['step by step', 'guide', 'tutorial', 'how to'],
+                    creative: ['story', 'poem', 'creative', 'imagine']
+                };
+                let bestScore = 0;
+                for (const [intentName, patterns] of Object.entries(intentMap)) {
+                    let score = 0;
+                    for (const p of patterns)
+                        if (lower.includes(p)) score++;
+                    if (score > bestScore) { bestScore = score;
+                        intent = intentName; }
+                }
+
+                const entities = [];
+                const caps = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+                for (const e of caps)
+                    if (e.length > 2 && !['I', 'The', 'A', 'An'].includes(e)) entities.push(e);
+                const uniqueEntities = [...new Set(entities)].slice(0, 6);
+
+                const constraints = [];
+                if (lower.includes('short') || lower.includes('brief')) constraints.push('brevity');
+                if (lower.includes('detailed') || lower.includes('thorough')) constraints.push('detail');
+                if (lower.includes('simple') || lower.includes('beginner')) constraints.push('simple');
+                if (lower.includes('professional') || lower.includes('formal')) constraints.push('professional');
+                if (lower.includes('creative')) constraints.push('creative');
+
+                let domain = null,
+                    domainScore = 0;
+                for (const [d, kws] of Object.entries(KB.DOMAIN_KEYWORDS)) {
+                    let s = 0;
+                    for (const kw of kws)
+                        if (lower.includes(kw)) s++;
+                    if (s > domainScore) { domainScore = s;
+                        domain = d; }
+                }
+
+                const audience = this.detectAudience(lower);
+                const tone = this.detectTone(lower);
+                const format = this.detectFormat(lower);
+                const lengthTarget = this.detectLength(text, lower);
+                const emotion = this.detectEmotion(lower);
+
+                const missing = [];
+                if (!audience) missing.push('audience');
+                if (!lengthTarget) missing.push('length');
+                if (!format) missing.push('format');
+                if (!tone) missing.push('tone');
+                if (!/example|e\.g\.|for instance/i.test(text)) missing.push('examples');
+                if (wordCount < 6) missing.push('depth');
+
+                const ambiguity = this.detectAmbiguity(text);
+                const hallucinationRisk = this.detectHallucinationRisk(lower, uniqueEntities);
+                const detectedRole = this.detectRole(lower);
+                const complexity = wordCount > 50 ? 'complex' : wordCount > 20 ? 'moderate' : 'simple';
+
+                return {
+                    intent,
+                    entities: uniqueEntities,
+                    constraints,
+                    complexity,
+                    confidence: Math.min(0.9, 0.3 + uniqueEntities.length * 0.05 + (domain ? 0.1 : 0)),
+                    domain,
+                    audience,
+                    tone,
+                    format,
+                    lengthTarget,
+                    emotion,
+                    missing,
+                    ambiguity,
+                    hallucinationRisk,
+                    detectedRole,
+                    wordCount
+                };
+            }
+
+            detectAudience(lower) {
+                if (/beginner|newbie|new to this|never (used|tried)|eli5|explain like/i.test(lower)) return 'Beginner';
+                if (/expert|advanced|professional audience|senior/i.test(lower)) return 'Expert';
+                if (/\bchild\b|\bkid\b|\bstudent\b/i.test(lower)) return 'Student';
+                if (/executive|manager|\bceo\b|stakeholder/i.test(lower)) return 'Executive';
+                return null;
+            }
+            detectTone(lower) {
+                if (/formal|professional tone|business tone/i.test(lower)) return 'Formal';
+                if (/casual|friendly|conversational/i.test(lower)) return 'Casual';
+                if (/funny|humorous|witty/i.test(lower)) return 'Humorous';
+                if (/simple language|easy to understand/i.test(lower)) return 'Simple';
+                return null;
+            }
+            detectFormat(lower) {
+                if (/bullet|bulleted list|as a list/i.test(lower)) return 'List';
+                if (/\btable\b/i.test(lower)) return 'Table';
+                if (/code snippet|write (a |the )?code|\bfunction\b/i.test(lower)) return 'Code';
+                if (/essay|article|blog post/i.test(lower)) return 'Article';
+                if (/\bemail\b/i.test(lower)) return 'Email';
+                if (/step[\s-]by[\s-]step|tutorial/i.test(lower)) return 'Step-by-step';
+                return null;
+            }
+            detectLength(text, lower) {
+                const m = text.match(/(\d+)\s*(word|words|paragraph|paragraphs|page|pages|sentence|sentences)/i);
+                if (m) return `${m[1]} ${m[2]}`;
+                if (/\bshort\b|\bbrief\b|\bconcise\b/i.test(lower)) return 'Short';
+                if (/\blong\b|\bdetailed\b|\bcomprehensive\b|\bthorough\b|\bin-depth\b/i.test(lower)) return 'Long';
+                return null;
+            }
+            detectEmotion(lower) {
+                if (/\burgent\b|\basap\b|immediately|right now/i.test(lower)) return 'Urgent';
+                if (/\bplease\b|kindly|would you/i.test(lower)) return 'Polite';
+                if (/frustrat|annoy(ed|ing)|\bangry\b/i.test(lower)) return 'Frustrated';
+                if (/excited|love this|amazing/i.test(lower)) return 'Enthusiastic';
+                return 'Neutral';
+            }
+            detectAmbiguity(text) {
+                const lower = text.toLowerCase();
+                const found = [];
+                for (const term of KB.VAGUE_TERMS) {
+                    const re = new RegExp(`\\b${term.replace(/\s+/g, '\\s+')}\\b`, 'i');
+                    if (re.test(lower)) found.push(term);
+                }
+                const words = Math.max(text.trim().split(/\s+/).length, 1);
+                let score = Math.round((found.length / Math.max(words / 10, 1)) * 35);
+                if (found.length > 0) score += 8;
+                score = Math.max(0, Math.min(100, score));
+                return { score, terms: [...new Set(found)] };
+            }
+            detectHallucinationRisk(lower, entities) {
+                let score = 12;
+                let demands = 0;
+                for (const d of KB.PRECISION_DEMANDS)
+                    if (lower.includes(d)) demands++;
+                score += demands * 13;
+                if (entities.length === 0 && demands > 0) score += 15;
+                if (/without (any )?(a )?source|from memory only|no citation needed/i.test(lower)) score += 10;
+                if (/everything about|all details about|comprehensive list of all/i.test(lower)) score += 10;
+                return Math.max(5, Math.min(95, score));
+            }
+            detectRole(lower) {
+                let best = null,
+                    bestScore = 0;
+                for (const p of KB.PROFESSIONS) {
+                    let score = 0;
+                    for (const kw of p.keywords)
+                        if (lower.includes(kw)) score++;
+                    if (score > bestScore) { bestScore = score;
+                        best = p; }
+                }
+                return bestScore > 0 ? { profession: best, confidence: Math.min(95, bestScore * 28) } : null;
+            }
+
+            compress(text, level) {
+                let t = text;
+                const fillers = KB.FILLERS;
+                const removeCount = level === 'aggressive' ? fillers.length : level === 'balanced' ? 6 : 3;
+                for (let i = 0; i < removeCount && i < fillers.length; i++) {
+                    t = t.replace(new RegExp(`\\b${fillers[i]}\\s+`, 'gi'), '');
+                }
+                if (level === 'aggressive') {
+                    t = t.replace(/\b(in order to)\b/gi, 'to');
+                    t = t.replace(/\b(due to the fact that)\b/gi, 'because');
+                    t = t.replace(/\b(at this point in time)\b/gi, 'now');
+                    t = t.replace(/\b(in the event that)\b/gi, 'if');
+                    t = t.replace(/\b(please)\b/gi, '');
+                    t = t.replace(/\b(kindly)\b/gi, '');
+                }
+                return t.replace(/\s+/g, ' ').trim();
+            }
+
+            buildStats(input, optimized, method, analysis) {
+                return {
+                    chars: Utils.countChars(optimized),
+                    words: Utils.countWords(optimized),
+                    tokens: Utils.estimateTokens(optimized),
+                    compression: Math.round((1 - Utils.estimateTokens(optimized) / Math.max(1, Utils.estimateTokens(
+                        input))) * 100),
+                    semantic: Math.round(Utils.jaccardSimilarity(input, optimized) * 100),
+                    readability: Utils.readability(optimized),
+                    method,
+                    intent: analysis.intent,
+                    confidence: Math.round((analysis.confidence || 0.5) * 100)
+                };
+            }
+
+            generateFormats(optimized, analysis, options, input) {
+                const lang = Utils.detectLanguage(input);
+                const english = (options && options.targetLang && options.targetLang !== 'auto' && options.targetLang !==
+                    lang) ?
+                    `[${Utils.getLanguageName(options.targetLang)}] ${optimized}` :
+                    (lang !== 'en' ? `[EN] ${optimized}` : optimized);
+                const professional = optimized.replace(/\bI\b/g, 'One').replace(/\byou\b/gi, 'the user');
+                const developer =
+                    `// Intent: ${analysis.intent}\n// Entities: ${(analysis.entities || []).join(', ')}\n\n${optimized}`;
+                const markdown = `# Optimized Prompt\n\n${optimized}\n\n---\n*Intent: ${analysis.intent}*`;
+                const json = JSON.stringify({ prompt: optimized, analysis }, null, 2);
+
+                const expert =
+                    `${optimized}\n\nProvide an expert-level, technically precise answer. Reference relevant frameworks, terminology, or standards where appropriate.`;
+                const academic =
+                    `${optimized}\n\nStructure the response academically: state a thesis, support it with reasoning and evidence, then conclude.`;
+                const research = `Research question: ${optimized}\n\nCover background, current understanding, and open questions.`;
+                const creative = `${optimized}\n\nUse vivid language, metaphor, or storytelling to make this engaging.`;
+                const minimal = optimized.split(/\n/)[0].split(/(?<=[.?!])\s/)[0].trim();
+                const yaml = this.toYAML(optimized, analysis);
+                const xml = this.toXML(optimized, analysis);
+
+                return { english, professional, developer, markdown, json, expert, academic, research, creative,
+                    minimal, yaml, xml };
+            }
+
+            toYAML(optimized, analysis) {
+                const esc = (s) => String(s).replace(/"/g, '\\"').replace(/\n/g, ' ');
+                const constraints = (analysis.constraints && analysis.constraints.length) ? analysis.constraints.map(c =>
+                    `  - ${c}`).join('\n') : '  - none';
+                return `task: "${esc(optimized)}"\nintent: ${analysis.intent}\ndomain: ${analysis.domain || 'general'}\naudience: ${analysis.audience || 'unspecified'}\ntone: ${analysis.tone || 'unspecified'}\nformat: ${analysis.format || 'unspecified'}\nconstraints:\n${constraints}`;
+            }
+            toXML(optimized, analysis) {
+                const esc = Utils.escapeHTML;
+                return `<prompt>\n  <task>${esc(optimized)}</task>\n  <intent>${esc(analysis.intent)}</intent>\n  <domain>${esc(analysis.domain || 'general')}</domain>\n  <audience>${esc(analysis.audience || 'unspecified')}</audience>\n  <tone>${esc(analysis.tone || 'unspecified')}</tone>\n  <format>${esc(analysis.format || 'unspecified')}</format>\n</prompt>`;
+            }
+
+            scoreDetailed(optimized, analysis) {
+                const words = optimized.trim().split(/\s+/).filter(Boolean);
+                const wc = Math.max(words.length, 1);
+                const sentences = (optimized.match(/[.!?]+/g) || []).length || 1;
+                const avgLen = wc / sentences;
+
+                let clarity = 100 - Math.max(0, avgLen - 18) * 2.2 - ((analysis.ambiguity && analysis.ambiguity.terms ?
+                    analysis.ambiguity.terms.length : 0) * 7);
+                clarity = Math.max(5, Math.min(100, Math.round(clarity)));
+
+                let context = 35 + (analysis.entities ? analysis.entities.length : 0) * 9 + (analysis.domain ? 15 : 0) + (
+                    analysis.audience ? 12 : 0) + (analysis.emotion && analysis.emotion !== 'Neutral' ? 5 : 0);
+                context = Math.max(5, Math.min(100, Math.round(context)));
+
+                const numbers = (optimized.match(/\d+/g) || []).length;
+                let specificity = 25 + (analysis.entities ? analysis.entities.length : 0) * 8 + numbers * 7 + (analysis
+                    .lengthTarget ? 10 : 0) + (analysis.format ? 8 : 0);
+                specificity = Math.max(5, Math.min(100, Math.round(specificity)));
+
+                let fillerHits = 0;
+                for (const f of KB.FILLERS)
+                    if (new RegExp(`\\b${f}\\b`, 'i').test(optimized)) fillerHits++;
+                let tokenEfficiency = Math.max(10, 100 - fillerHits * 9);
+
+                let reasoning;
+                if (analysis.complexity === 'complex') reasoning = /(step[\s-]by[\s-]step|reasoning|explain why|analy[sz]e)/i
+                    .test(optimized) ? 88 : 42;
+                else reasoning = 68;
+
+                let completeness = 100 - (analysis.missing ? analysis.missing.length : 0) * 13;
+                completeness = Math.max(10, Math.min(100, Math.round(completeness)));
+
+                const ambiguity = (analysis.ambiguity && analysis.ambiguity.score) || 0;
+                const overall = Math.round((clarity + context + specificity + tokenEfficiency + reasoning +
+                    completeness + (100 - ambiguity)) / 7);
+
+                return { clarity, context, specificity, tokenEfficiency, reasoning, completeness, ambiguity, overall };
+            }
+
+            promptDNA(text) {
+                let h1 = 0,
+                    h2 = 0;
+                for (let i = 0; i < text.length; i++) {
+                    h1 = (h1 * 31 + text.charCodeAt(i)) >>> 0;
+                    h2 = (h2 * 131 + text.charCodeAt(i) + i) >>> 0;
+                }
+                const a = h1.toString(16).toUpperCase().padStart(8, '0').slice(0, 4);
+                const b = h2.toString(16).toUpperCase().padStart(8, '0').slice(0, 4);
+                return `PDNA-${a}-${b}`;
+            }
+
+            explain(input, optimized, stats, analysis) {
+                const list = [];
+                if (input.trim() === optimized.trim()) {
+                    list.push('This is the analysis of your current input — click Optimize to see before/after changes.');
+                } else {
+                    const origTok = Utils.estimateTokens(input);
+                    const optTok = Utils.estimateTokens(optimized);
+                    const diff = origTok - optTok;
+                    list.push(diff >= 0 ? `Trimmed ~${diff} tokens while keeping ${stats.semantic}% word overlap with the original.` :
+                        `Added ~${Math.abs(diff)} tokens of clarifying structure.`);
+                }
+                list.push(`Detected intent: ${analysis.intent}${analysis.domain ? ', domain: ' + analysis.domain : ''}.`);
+                if (analysis.missing && analysis.missing.length) list.push(
+                    `Still missing: ${analysis.missing.join(', ')} — consider adding these for a stronger prompt.`);
+                else list.push('No obvious missing context — nicely specified prompt.');
+                if (analysis.ambiguity && analysis.ambiguity.terms && analysis.ambiguity.terms.length) list.push(
+                    `Vague terms found: ${analysis.ambiguity.terms.slice(0, 5).join(', ')}.`);
+                list.push(`Confidence in this analysis: ${Math.round((analysis.confidence || 0.5) * 100)}% (local heuristic engine).`);
+                return list;
+            }
+
+            repair(text) {
+                let t = text.trim();
+                const issues = [];
+                if (!t) return { fixed: t, issues: ['Nothing to repair — the prompt is empty.'] };
+                if (/[ \t]{2,}/.test(t)) { t = t.replace(/[ \t]{2,}/g, ' ');
+                    issues.push('Collapsed repeated spaces.'); }
+                if (/\n{3,}/.test(t)) { t = t.replace(/\n{3,}/g, '\n\n');
+                    issues.push('Collapsed extra blank lines.'); }
+                if (/^[a-z]/.test(t)) { t = t[0].toUpperCase() + t.slice(1);
+                    issues.push('Capitalized the first letter.'); }
+                if (!/[.?!]["')\]]?$/.test(t)) { t = t + '.';
+                    issues.push('Added missing closing punctuation.'); }
+                for (const [wrong, right] of Object.entries(KB.TYPO_MAP)) {
+                    const re = new RegExp(`\\b${wrong}\\b`, 'gi');
+                    if (re.test(t)) { t = t.replace(re, right);
+                        issues.push(`Fixed "${wrong}" → "${right}".`); }
+                }
+                if (/\b(and|or|but|because|so|that|which|to|with|for)\s*[.?!]?$/i.test(t)) {
+                    issues.push(
+                        '⚠️ This prompt may be cut off — it ends on a connecting word. Consider finishing the thought.');
+                }
+                if (issues.length === 0) issues.push('No structural issues found — the prompt looks well-formed.');
+                return { fixed: t, issues };
+            }
+
+            similarityVerdict(pct) {
+                if (pct >= 70) return 'Highly similar';
+                if (pct >= 40) return 'Related, but meaningfully different';
+                if (pct >= 15) return 'Loosely related';
+                return 'Largely different prompts';
+            }
+        }
+
+        // ================================================================
+        //  HISTORY MANAGER (using localStorage)
+        // ================================================================
+        class HistoryManager {
+            constructor() {
+                this.key = 'promptguru_history';
+            }
+            async addEntry(original, optimized, model, method, analysis) {
+                const entries = this.getEntries();
+                const entry = { id: Date.now(), original, optimized, model, method, timestamp: Date.now(),
+                    intent: analysis ? analysis.intent : null };
+                entries.push(entry);
+                localStorage.setItem(this.key, JSON.stringify(entries));
+            }
+            getEntries() {
+                try { return JSON.parse(localStorage.getItem(this.key)) || []; } catch { return []; }
+            }
+            async getHistory() {
+                return this.getEntries();
+            }
+            async clearHistory() {
+                localStorage.removeItem(this.key);
+            }
+        }
+
+        // ================================================================
+        //  UI CONTROLLER
+        // ================================================================
+        class App {
+            constructor() {
+                this.input = document.getElementById('promptInput');
+                this.output = document.getElementById('outputArea');
+                this.optimizeBtn = document.getElementById('optimizeBtn');
+                this.charCount = document.getElementById('charCount');
+                this.wordCount = document.getElementById('wordCount');
+                this.tokenCount = document.getElementById('tokenCount');
+                this.langDisplay = document.getElementById('langDisplay');
+                this.langBadge = document.getElementById('langBadge');
+                this.outChars = document.getElementById('outChars');
+                this.outWords = document.getElementById('outWords');
+                this.outTokens = document.getElementById('outTokens');
+                this.outCompression = document.getElementById('outCompression');
+                this.outEngine = document.getElementById('outEngine');
+                this.statChars = document.getElementById('statChars');
+                this.statWords = document.getElementById('statWords');
+                this.statTokens = document.getElementById('statTokens');
+                this.statCompression = document.getElementById('statCompression');
+                this.statSemantic = document.getElementById('statSemantic');
+                this.statReadability = document.getElementById('statReadability');
+                this.qualityBadge = document.getElementById('qualityBadge');
+                this.qualityScore = document.getElementById('qualityScore');
+                this.originalCompare = document.getElementById('originalCompareText');
+                this.optimizedCompare = document.getElementById('optimizedCompareText');
+                this.tokenDiff = document.getElementById('tokenDiff');
+                this.compressionDiff = document.getElementById('compressionDiff');
+                this.semanticPreserved = document.getElementById('semanticPreserved');
+                this.methodStatus = document.getElementById('methodStatus');
+                this.progressRing = document.getElementById('progressRing');
+                this.progressLabel = document.getElementById('progressLabel');
+                this.insightText = document.getElementById('insightText');
+                this.insightSummary = document.getElementById('insightSummary');
+                this.contextTags = document.getElementById('contextTags');
+                this.modelStatus = document.getElementById('modelStatus');
+                this.engineHint = document.getElementById('engineHint');
+                this.modelProgress = document.getElementById('modelProgress');
+                this.modelStatusText = document.getElementById('modelStatusText');
+                this.modelPercent = document.getElementById('modelPercent');
+                this.modelProgressFill = document.getElementById('modelProgressFill');
+
+                this.outputTabs = document.querySelectorAll('#outputTabs .tab-btn');
+                this.optLevel = document.getElementById('optLevel');
+                this.structureMode = document.getElementById('structureMode');
+                this.targetLang = document.getElementById('targetLang');
+                this.cotToggle = document.getElementById('cotToggle');
+                this.autoSave = document.getElementById('autoSave');
+
+                this.copyBtn = document.getElementById('copyBtn');
+                this.pasteBtn = document.getElementById('pasteBtn');
+                this.voiceBtn = document.getElementById('voiceBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.importBtn = document.getElementById('importBtn');
+                this.fileInput = document.getElementById('fileInput');
+                this.downloadTxtBtn = document.getElementById('downloadTxtBtn');
+                this.downloadMdBtn = document.getElementById('downloadMdBtn');
+                this.downloadJsonBtn = document.getElementById('downloadJsonBtn');
+                this.resetOutputBtn = document.getElementById('resetOutputBtn');
+                this.settingsToggle = document.getElementById('settingsToggle');
+                this.settingsCloseBtn = document.getElementById('settingsCloseBtn');
+                this.settingsCard = document.getElementById('settingsCard');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.historyBtn = document.getElementById('historyBtn');
+                this.historyCard = document.getElementById('historyCard');
+                this.historyCloseBtn = document.getElementById('historyCloseBtn');
+                this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
+                this.historyList = document.getElementById('historyList');
+                this.dockOptimizeBtn = document.getElementById('dockOptimizeBtn');
+                this.dockHistoryBtn = document.getElementById('dockHistoryBtn');
+                this.dockSettingsBtn = document.getElementById('dockSettingsBtn');
+                this.loadModelBtn = document.getElementById('loadModelBtn');
+                this.clearCacheBtn = document.getElementById('clearCacheBtn');
+                this.modelCacheInfo = document.getElementById('modelCacheInfo');
+                this.engineSelector = document.getElementById('engineSelector');
+
+                this.currentResult = null;
+                this.currentTab = 'optimized';
+                this.isDark = true;
+                this.voiceRecognition = null;
+                this.isRecording = false;
+                this.activeTemplateCat = 'All';
+
+                // We only use the fallback engine (no WebLLM) for reliability
+                this.fallback = new FallbackEngine();
+                this.history = new HistoryManager();
+
+                // Default engine is fallback
+                this.selectedEngine = 'fallback';
+
+                this.init();
+            }
+
+            init() {
+                const saved = localStorage.getItem('promptguru_offline_lastInput');
+                if (saved) this.input.value = saved;
+
+                this.initAdvancedSuite();
+                this.updateInputStats();
+
+                // Always use fallback engine
+                this.selectedEngine = 'fallback';
+                this.updateEngineSelector();
+                this.updateEngineStatus();
+                this.updateEngineHint();
+
+                this.input.addEventListener('input', () => {
+                    this.updateInputStats();
+                    if (this.autoSave.value === 'on') this.autoSavePrompt();
+                });
+                this.optimizeBtn.addEventListener('click', () => this.optimize());
+                this.dockOptimizeBtn.addEventListener('click', () => this.optimize());
+
+                this.outputTabs.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.outputTabs.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentTab = btn.dataset.tab;
+                        this.updateOutputTab();
+                    });
+                });
+
+                this.copyBtn.addEventListener('click', () => {
+                    const text = this.output.value;
+                    if (!text || text === 'Run optimization to see results.') return;
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => { this.copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; },
+                            1500);
+                    }).catch(() => { this.output.select();
+                        document.execCommand('copy'); });
+                });
+
+                this.pasteBtn.addEventListener('click', async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        this.input.value = text;
+                        this.updateInputStats();
+                    } catch { this.input.focus();
+                        document.execCommand('paste');
+                        this.updateInputStats(); }
+                });
+
+                this.voiceBtn.addEventListener('click', () => this.toggleVoice());
+
+                this.clearBtn.addEventListener('click', () => {
+                    this.input.value = '';
+                    this.updateInputStats();
+                    this.output.value = '';
+                    this.updateOutputStats(null);
+                    this.currentResult = null;
+                    this.originalCompare.textContent = '—';
+                    this.optimizedCompare.textContent = '—';
+                    this.contextTags.innerHTML = '';
+                });
+
+                this.importBtn.addEventListener('click', () => this.fileInput.click());
+                this.fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => { this.input.value = ev.target.result;
+                            this.updateInputStats(); };
+                        reader.readAsText(file);
+                    }
+                    this.fileInput.value = '';
+                });
+
+                const dropZone = this.input.closest('.card');
+                dropZone.addEventListener('dragover', (e) => { e.preventDefault();
+                    dropZone.style.borderColor = 'var(--accent-cyan)'; });
+                dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'transparent'; });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = 'transparent';
+                    const files = e.dataTransfer.files;
+                    if (files.length) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => { this.input.value = ev.target.result;
+                            this.updateInputStats(); };
+                        reader.readAsText(files[0]);
+                    }
+                });
+
+                this.downloadTxtBtn.addEventListener('click', () => this.download('txt'));
+                this.downloadMdBtn.addEventListener('click', () => this.download('md'));
+                this.downloadJsonBtn.addEventListener('click', () => this.download('json'));
+
+                this.resetOutputBtn.addEventListener('click', () => {
+                    this.output.value = '';
+                    this.updateOutputStats(null);
+                    this.currentResult = null;
+                });
+
+                this.settingsToggle.addEventListener('click', () => this.settingsCard.classList.toggle('hidden'));
+                this.settingsCloseBtn.addEventListener('click', () => this.settingsCard.classList.add('hidden'));
+                this.dockSettingsBtn.addEventListener('click', () => this.settingsCard.classList.toggle('hidden'));
+
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+
+                this.historyBtn.addEventListener('click', () => this.showHistory());
+                this.dockHistoryBtn.addEventListener('click', () => this.showHistory());
+                this.historyCloseBtn.addEventListener('click', () => this.historyCard.classList.add('hidden'));
+                this.clearHistoryBtn.addEventListener('click', async () => {
+                    await this.history.clearHistory();
+                    this.showHistory();
+                });
+
+                // Engine selector: only fallback is active; WebLLM is disabled (we don't load it)
+                this.engineSelector.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.engineSelector.querySelectorAll('.chip').forEach(c => c.classList.remove(
+                            'active'));
+                        chip.classList.add('active');
+                        // Only allow fallback
+                        this.selectedEngine = 'fallback';
+                        localStorage.setItem('promptguru_offline_engine', this.selectedEngine);
+                        this.updateEngineStatus();
+                        this.updateEngineHint();
+                    });
+                });
+
+                // Disable load model and clear cache since we don't use WebLLM
+                this.loadModelBtn.style.display = 'none';
+                this.clearCacheBtn.style.display = 'none';
+                this.modelCacheInfo.textContent = 'WebLLM not used';
+
+                [this.optLevel, this.structureMode, this.targetLang, this.cotToggle].forEach(el => {
+                    el.addEventListener('change', () => { if (this.currentResult) this.optimize(); });
+                });
+
+                this.input.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault();
+                        this.optimize(); }
+                });
+
+                this.updateEngineStatus();
+                this.updateEngineHint();
+
+                // Auto-optimize after a short delay
+                setTimeout(() => this.optimize(), 600);
+                this.initParticles();
+                this.updateProgress(0);
+            }
+
+            // ============================================================
+            //  ADVANCED INTELLIGENCE SUITE
+            // ============================================================
+            initAdvancedSuite() {
+                this.professionChips = document.getElementById('professionChips');
+                this.professionChips.innerHTML = KB.PROFESSIONS.map(p =>
+                    `<button type="button" class="chip" data-id="${p.id}">${p.icon} ${p.name}</button>`).join('');
+                this.professionChips.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.professionChips.querySelectorAll('.chip').forEach(c => c.classList.remove(
+                            'active'));
+                        chip.classList.add('active');
+                        this.renderPerspective(chip.dataset.id);
+                    });
+                });
+
+                this.modelChips = document.getElementById('modelChips');
+                this.modelChips.innerHTML = KB.AI_MODELS.map(m =>
+                    `<button type="button" class="chip" data-id="${m.id}">${m.icon} ${m.name}</button>`).join('');
+                this.modelChips.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.modelChips.querySelectorAll('.chip').forEach(c => c.classList.remove(
+                            'active'));
+                        chip.classList.add('active');
+                        this.renderModelOptimizer(chip.dataset.id);
+                    });
+                });
+
+                document.querySelectorAll('.suite-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.suite-tab').forEach(t => t.classList.remove(
+                            'active'));
+                        tab.classList.add('active');
+                        document.querySelectorAll('.suite-panel').forEach(p => p.classList.remove(
+                            'active'));
+                        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+                    });
+                });
+
+                document.getElementById('copyPerspectiveBtn').addEventListener('click', () => this.copyText(
+                    'perspectiveOutput'));
+                document.getElementById('usePerspectiveBtn').addEventListener('click', () => this.useAsInput(
+                    'perspectiveOutput'));
+                document.getElementById('copyModelBtn').addEventListener('click', () => this.copyText('modelOutput'));
+                document.getElementById('useModelBtn').addEventListener('click', () => this.useAsInput('modelOutput'));
+
+                document.getElementById('compareBtn').addEventListener('click', () => this.runSimilarity());
+                document.getElementById('repairBtn').addEventListener('click', () => this.runRepair());
+                document.getElementById('useRepairBtn').addEventListener('click', () => this.useAsInput('repairOutput'));
+
+                this.templateCatsEl = document.getElementById('templateCats');
+                const cats = ['All', ...new Set(KB.TEMPLATES.map(t => t.cat))];
+                this.templateCatsEl.innerHTML = cats.map(c =>
+                    `<button type="button" class="chip ${c === 'All' ? 'active' : ''}" data-cat="${c}">${c}</button>`
+                    ).join('');
+                this.templateCatsEl.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.templateCatsEl.querySelectorAll('.chip').forEach(c => c.classList.remove(
+                            'active'));
+                        chip.classList.add('active');
+                        this.activeTemplateCat = chip.dataset.cat;
+                        this.renderTemplates();
+                    });
+                });
+                document.getElementById('templateSearch').addEventListener('input', () => this.renderTemplates());
+                this.renderTemplates();
+
+                document.getElementById('aboutBtn').addEventListener('click', () => {
+                    document.getElementById('layerList').innerHTML = KB.LAYERS.map(l =>
+                        `<div class="layer-row"><div class="num">${l.n}</div><div><strong>${l.name}</strong><div class="desc">${l.desc}</div></div></div>`
+                        ).join('');
+                    document.getElementById('aboutModal').classList.remove('hidden');
+                });
+                document.getElementById('aboutCloseBtn').addEventListener('click', () => document.getElementById(
+                    'aboutModal').classList.add('hidden'));
+                document.getElementById('aboutModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'aboutModal') document.getElementById('aboutModal').classList.add(
+                        'hidden');
+                });
+            }
+
+            copyText(elId) {
+                const el = document.getElementById(elId);
+                const text = el.value !== undefined ? el.value : el.textContent;
+                navigator.clipboard.writeText(text).catch(() => {});
+            }
+
+            useAsInput(elId) {
+                const el = document.getElementById(elId);
+                const text = el.value !== undefined ? el.value : el.textContent;
+                if (!text || text.includes('Select a')) return;
+                this.input.value = text;
+                this.updateInputStats();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            getWorkingText() {
+                return (this.currentResult && this.currentResult.optimized) ? this.currentResult.optimized : this
+                    .input.value.trim();
+            }
+
+            renderPerspective(id) {
+                const text = this.getWorkingText();
+                if (!text) return;
+                const profession = KB.PROFESSIONS.find(p => p.id === id);
+                const trimmed = text.replace(/[.?!]+\s*$/, '');
+                const out =
+                    `${trimmed}.\n\nFrame this specifically for a ${profession.name.toLowerCase()}: emphasize ${profession.focus}, and keep the tone ${profession.tone}.`;
+                document.getElementById('perspectiveOutput').textContent = out;
+            }
+
+            renderModelOptimizer(id) {
+                const text = this.getWorkingText();
+                if (!text) return;
+                const model = KB.AI_MODELS.find(m => m.id === id);
+                document.getElementById('modelHint').textContent = `💡 ${model.hint}`;
+                document.getElementById('modelOutput').textContent = model.apply(text);
+            }
+
+            renderTemplates() {
+                const searchEl = document.getElementById('templateSearch');
+                const q = (searchEl ? searchEl.value : '').toLowerCase();
+                const list = KB.TEMPLATES.filter(t =>
+                    (this.activeTemplateCat === 'All' || t.cat === this.activeTemplateCat) &&
+                    (t.title.toLowerCase().includes(q) || t.text.toLowerCase().includes(q) || t.cat.toLowerCase()
+                        .includes(q))
+                );
+                const grid = document.getElementById('templateGrid');
+                if (!list.length) { grid.innerHTML = '<p class="text-muted text-sm">No templates match.</p>'; return; }
+                grid.innerHTML = list.map((t, idx) => {
+                    const globalIdx = KB.TEMPLATES.indexOf(t);
+                    return `<div class="template-card"><div class="cat">${t.cat}</div><div class="title">${t.title}</div><div class="preview">${Utils.escapeHTML(t.text)}</div><button class="btn btn-xs btn-outline use-template" data-idx="${globalIdx}" type="button">Use Template</button></div>`;
+                }).join('');
+                grid.querySelectorAll('.use-template').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const tpl = KB.TEMPLATES[parseInt(btn.dataset.idx, 10)];
+                        this.input.value = tpl.text;
+                        this.updateInputStats();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+            }
+
+            runSimilarity() {
+                const a = this.input.value.trim();
+                const b = document.getElementById('compareInput').value.trim();
+                if (!a || !b) { alert('Please fill both the main prompt and the comparison prompt.'); return; }
+                const pct = Math.round(Utils.jaccardSimilarity(a, b) * 100);
+                document.getElementById('comparePct').textContent = `${pct}%`;
+                document.getElementById('compareVerdict').textContent = this.fallback.similarityVerdict(pct);
+                const wordsA = new Set(a.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+                const wordsB = new Set(b.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+                const shared = [...wordsA].filter(w => wordsB.has(w)).slice(0, 8);
+                document.getElementById('compareShared').textContent = shared.length ? `Shared terms: ${shared.join(', ')}` :
+                    'No significant shared terms.';
+                document.getElementById('compareResult').classList.remove('hidden');
+            }
+
+            runRepair() {
+                const text = this.input.value.trim();
+                const result = this.fallback.repair(text);
+                const out = document.getElementById('repairOutput');
+                out.textContent = result.fixed;
+                out.classList.remove('hidden');
+                document.getElementById('repairIssues').innerHTML = result.issues.map(i =>
+                    `<div class="repair-issue">${Utils.escapeHTML(i)}</div>`).join('');
+                document.getElementById('repairActions').classList.remove('hidden');
+            }
+
+            // ============================================================
+            //  LIVE INTELLIGENCE REFRESH
+            // ============================================================
+            refreshIntelligence(text, statsOverride) {
+                if (!text || text.trim().length < 3) {
+                    this.contextTags.innerHTML = '';
+                    const ml = document.getElementById('missingList');
+                    if (ml) ml.innerHTML = '';
+                    const rw = document.getElementById('radarWrap');
+                    if (rw) rw.innerHTML = '<span class="text-muted text-xs">Type a prompt to see its score.</span>';
+                    const el = document.getElementById('explainList');
+                    if (el) el.innerHTML = '';
+                    const db = document.getElementById('dnaBadge');
+                    if (db) db.innerHTML = '<i class="fas fa-fingerprint"></i> PDNA-0000-0000';
+                    const ap = document.getElementById('ambiguityPreview');
+                    if (ap) ap.textContent = 'Start typing a prompt to see flagged terms here.';
+                    const rb = document.getElementById('roleBadge');
+                    if (rb) rb.innerHTML = '🔎 No strong match yet';
+                    return;
+                }
+                const analysis = this.fallback.analyze(text);
+                this.renderContextTags(analysis);
+                this.renderMissingContext(analysis);
+
+                const score = this.fallback.scoreDetailed(text, analysis);
+                document.getElementById('radarWrap').innerHTML = this.buildRadarHTML(score);
+
+                document.getElementById('dnaBadge').innerHTML =
+                    `<i class="fas fa-fingerprint"></i> ${this.fallback.promptDNA(text)}`;
+
+                const baseInput = this.input.value.trim();
+                const stats = statsOverride || this.fallback.buildStats(baseInput || text, text, 'local', analysis);
+                const explainItems = this.fallback.explain(baseInput || text, text, stats, analysis);
+                document.getElementById('explainList').innerHTML = explainItems.map(e =>
+                    `<div class="explain-item"><i class="fas fa-circle"></i><span>${Utils.escapeHTML(e)}</span></div>`
+                    ).join('');
+
+                document.getElementById('ambiguityPct').textContent = `${analysis.ambiguity.score}%`;
+                this.setMeter('ambiguityMeter', analysis.ambiguity.score);
+                document.getElementById('ambiguityPreview').innerHTML = this.highlightAmbiguity(text, analysis
+                    .ambiguity.terms);
+
+                document.getElementById('riskPct').textContent = `${analysis.hallucinationRisk}%`;
+                this.setMeter('riskMeter', analysis.hallucinationRisk);
+                document.getElementById('riskNote').textContent = analysis.hallucinationRisk > 55 ?
+                    'Asks for specific facts without much grounding — consider providing source material.' :
+                    'Risk looks manageable based on local heuristics.';
+
+                document.getElementById('roleBadge').innerHTML = analysis.detectedRole ?
+                    `${analysis.detectedRole.profession.icon} ${analysis.detectedRole.profession.name} (${analysis.detectedRole.confidence}% match)` :
+                    '🔎 No strong professional match yet';
+            }
+
+            setMeter(id, pct) {
+                const el = document.getElementById(id);
+                el.querySelector('.fill').style.width = `${pct}%`;
+                el.className = 'risk-meter ' + (pct >= 60 ? 'risk-high' : pct >= 30 ? 'risk-mid' : 'risk-low');
+            }
+
+            highlightAmbiguity(text, terms) {
+                let html = Utils.escapeHTML(text);
+                if (!terms || !terms.length) return html;
+                for (const term of terms) {
+                    const re = new RegExp(`\\b(${term.replace(/\s+/g, '\\s+')})\\b`, 'gi');
+                    html = html.replace(re, '<span class="vague-term">$1</span>');
+                }
+                return html;
+            }
+
+            renderMissingContext(analysis) {
+                const labels = { audience: 'Audience', length: 'Length', format: 'Format', tone: 'Tone',
+                    examples: 'Examples', depth: 'Depth' };
+                const inserts = {
+                    audience: ' Audience: [specify audience].',
+                    length: ' Length: [specify desired length].',
+                    format: ' Format: [specify format, e.g. list/article/table].',
+                    tone: ' Tone: [specify tone].',
+                    examples: ' Include real-world examples.',
+                    depth: ' Provide a thorough, detailed explanation.'
+                };
+                const el = document.getElementById('missingList');
+                if (!analysis.missing || !analysis.missing.length) { el.innerHTML =
+                        '<span class="missing-chip ok"><i class="fas fa-check"></i> Looks complete</span>'; return; }
+                el.innerHTML = analysis.missing.map(m =>
+                    `<button type="button" class="missing-chip" data-insert="${Utils.escapeHTML(inserts[m] || '')}"><i class="fas fa-plus"></i> ${labels[m] || m}</button>`
+                    ).join('');
+                el.querySelectorAll('.missing-chip:not(.ok)').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        this.input.value = this.input.value.trim() + (chip.dataset.insert || '');
+                        this.updateInputStats();
+                        this.input.focus();
+                    });
+                });
+            }
+
+            buildRadarHTML(score) {
+                const axes = [
+                    { label: 'Clarity', value: score.clarity },
+                    { label: 'Context', value: score.context },
+                    { label: 'Specificity', value: score.specificity },
+                    { label: 'Efficiency', value: score.tokenEfficiency },
+                    { label: 'Reasoning', value: score.reasoning },
+                    { label: 'Completeness', value: score.completeness },
+                    { label: 'Precision', value: 100 - score.ambiguity }
+                ];
+                const cx = 110,
+                    cy = 110,
+                    maxR = 82,
+                    n = axes.length;
+                const pt = (i, r) => { const a = (Math.PI * 2 * i / n) - Math.PI / 2; return [cx + r * Math.cos(a),
+                        cy + r * Math.sin(a)
+                    ]; };
+                const grid = [0.25, 0.5, 0.75, 1].map(level => {
+                    const pts = axes.map((_, i) => pt(i, maxR * level).join(',')).join(' ');
+                    return `<polygon points="${pts}" class="radar-grid" />`;
+                }).join('');
+                const axisLines = axes.map((a, i) => {
+                    const [x2, y2] = pt(i, maxR);
+                    const [lx, ly] = pt(i, maxR + 20);
+                    return `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" class="radar-axis" /><text x="${lx}" y="${ly}" class="radar-label">${a.label}</text>`;
+                }).join('');
+                const dataPts = axes.map((a, i) => pt(i, maxR * (Math.max(0, Math.min(100, a.value)) / 100)).join(',')).join(
+                    ' ');
+                const svg =
+                    `<svg viewBox="0 0 220 220" class="radar-svg">${grid}${axisLines}<polygon points="${dataPts}" class="radar-data" /></svg>`;
+                const rows = axes.map(a =>
+                    `<div class="score-bar-row"><span class="name">${a.label}</span><div class="track"><div class="fill" style="width:${Math.max(0, Math.min(100, a.value))}%"></div></div><span class="val">${Math.round(a.value)}%</span></div>`
+                    ).join('');
+                const overall =
+                    `<div class="score-bar-row overall"><span class="name">Overall</span><div class="track"><div class="fill" style="width:${score.overall}%"></div></div><span class="val">${score.overall}%</span></div>`;
+                return svg + `<div class="score-bars">${rows}${overall}</div>`;
+            }
+
+            renderContextTags(analysis) {
+                let html = '';
+                if (analysis.intent && analysis.intent !== 'general') html +=
+                    `<span class="context-tag intent">🎯 ${analysis.intent}</span>`;
+                if (analysis.domain) html += `<span class="context-tag intent">🗂️ ${analysis.domain}</span>`;
+                if (analysis.entities && analysis.entities.length)
+                    for (const entity of analysis.entities.slice(0, 3)) html +=
+                        `<span class="context-tag entity">${Utils.escapeHTML(entity)}</span>`;
+                if (analysis.constraints && analysis.constraints.length)
+                    for (const c of analysis.constraints.slice(0, 3)) html +=
+                        `<span class="context-tag constraint">⚡ ${c}</span>`;
+                if (analysis.audience) html += `<span class="context-tag structure">👤 ${analysis.audience}</span>`;
+                if (analysis.complexity) html += `<span class="context-tag structure">📊 ${analysis.complexity}</span>`;
+                this.contextTags.innerHTML = html || '<span class="text-muted text-xs">No context detected</span>';
+            }
+
+            updateInputStats() {
+                const text = this.input.value;
+                const chars = Utils.countChars(text);
+                const words = Utils.countWords(text);
+                const tokens = Utils.estimateTokens(text);
+                const lang = Utils.detectLanguage(text);
+                const langName = Utils.getLanguageName(lang);
+                this.charCount.textContent = chars;
+                this.wordCount.textContent = words;
+                this.tokenCount.textContent = tokens;
+                this.langDisplay.textContent = langName;
+                this.langBadge.textContent = langName;
+                this.refreshIntelligence(text.trim());
+            }
+
+            updateOutputStats(result) {
+                if (!result) {
+                    this.outChars.textContent = '0';
+                    this.outWords.textContent = '0';
+                    this.outTokens.textContent = '0';
+                    this.outCompression.textContent = '0%';
+                    this.outEngine.textContent = '—';
+                    return;
+                }
+                const s = result.stats;
+                this.outChars.textContent = s.chars || 0;
+                this.outWords.textContent = s.words || 0;
+                this.outTokens.textContent = s.tokens || 0;
+                this.outCompression.textContent = `${s.compression || 0}%`;
+                this.outEngine.textContent = s.method === 'webllm' ? '🧠 WebLLM' : (s.method && s.method.startsWith(
+                    'fallback')) ? '⚡ Local' : s.method;
+            }
+
+            updateDashboard(result) {
+                if (!result) {
+                    ['statChars', 'statWords', 'statTokens', 'statCompression', 'statSemantic', 'statReadability']
+                        .forEach(id => { document.getElementById(id).textContent = '—'; });
+                    this.qualityBadge.textContent = '—';
+                    this.qualityScore.textContent = '—';
+                    this.updateProgress(0);
+                    return;
+                }
+                const s = result.stats;
+                this.statChars.textContent = s.chars || 0;
+                this.statWords.textContent = s.words || 0;
+                this.statTokens.textContent = s.tokens || 0;
+                this.statCompression.textContent = `${s.compression || 0}%`;
+                this.statSemantic.textContent = `${s.semantic || 0}%`;
+                this.statReadability.textContent = s.readability || 0;
+
+                const quality = s.semantic || 0;
+                const score = Math.round((quality * 0.5 + (s.compression || 0) * 0.3 + (s.readability || 0) * 0.2));
+                this.qualityScore.textContent = `${score}%`;
+
+                if (score > 80) { this.qualityBadge.textContent = '🧠 Excellent';
+                    this.qualityBadge.className = 'badge success'; } else if (score > 60) { this.qualityBadge
+                        .textContent = '📈 Good';
+                    this.qualityBadge.className = 'badge'; } else if (score > 40) { this.qualityBadge.textContent =
+                        '⚡ Fair';
+                    this.qualityBadge.className = 'badge warning'; } else { this.qualityBadge.textContent = '🔴 Needs Work';
+                    this.qualityBadge.className = 'badge'; }
+                this.updateProgress(score);
+            }
+
+            updateProgress(percent) {
+                const circumference = 150.8;
+                const offset = circumference - (percent / 100) * circumference;
+                this.progressRing.style.strokeDashoffset = offset;
+                this.progressLabel.textContent = `${Math.round(percent)}%`;
+            }
+
+            updateOutputTab() {
+                if (!this.currentResult) { this.output.value = 'Run optimization to see results.'; return; }
+                const r = this.currentResult;
+                const map = {
+                    'optimized': r.optimized,
+                    'preserved': r.compressed || r.optimized,
+                    'english': r.english || r.optimized,
+                    'professional': r.professional || r.optimized,
+                    'expert': r.expert || r.optimized,
+                    'academic': r.academic || r.optimized,
+                    'research': r.research || r.optimized,
+                    'creative': r.creative || r.optimized,
+                    'minimal': r.minimal || r.optimized,
+                    'developer': r.developer || r.optimized,
+                    'markdown': r.markdown || r.optimized,
+                    'json': r.json || '{}',
+                    'yaml': r.yaml || '',
+                    'xml': r.xml || ''
+                };
+                this.output.value = map[this.currentTab] || r.optimized;
+            }
+
+            updateEngineSelector() {
+                this.engineSelector.querySelectorAll('.chip').forEach(chip => {
+                    chip.classList.toggle('active', chip.dataset.engine === this.selectedEngine);
+                });
+            }
+
+            updateEngineStatus() {
+                const status = this.modelStatus;
+                // Always fallback
+                status.className = 'model-status ready';
+                status.innerHTML = '<span class="dot green"></span><span>Engine: Local Rule-based</span>';
+                this.modelProgress.classList.add('hidden');
+            }
+
+            updateEngineHint() {
+                this.engineHint.innerHTML =
+                    '<i class="fas fa-check-circle" style="color:var(--accent-green);"></i> Using <strong>Local Rule Engine</strong> — instant, no download, fully functional.';
+            }
+
+            // ============================================================
+            //  MAIN OPTIMIZE
+            // ============================================================
+            async optimize() {
+                const input = this.input.value.trim();
+                if (!input) { this.output.value = 'Please enter a prompt to optimize.'; return; }
+
+                this.optimizeBtn.innerHTML = '<span class="spinner"></span> Thinking…';
+                this.optimizeBtn.disabled = true;
+                localStorage.setItem('promptguru_offline_lastInput', input);
+
+                try {
+                    const options = {
+                        level: this.optLevel.value,
+                        structureMode: this.structureMode.value,
+                        targetLang: this.targetLang.value,
+                        cot: this.cotToggle.value
+                    };
+
+                    let optimizedText;
+                    let engineTag;
+
+                    // Always use fallback engine
+                    optimizedText = this.fallback.compress(input, options.level);
+                    engineTag = 'fallback';
+
+                    if (options.structureMode === 'enhance' && !/you are a helpful assistant/i.test(optimizedText)) {
+                        optimizedText = `You are a helpful assistant.\n\n${optimizedText}`;
+                    }
+                    const analysisPre = this.fallback.analyze(optimizedText);
+                    const wantsCoT = options.cot === 'on' || (options.cot === 'auto' && analysisPre.complexity ===
+                        'complex');
+                    if (wantsCoT && !/step[\s-]?by[\s-]?step/i.test(optimizedText)) {
+                        optimizedText += '\n\nPlease reason through this step by step.';
+                    }
+
+                    const analysis = this.fallback.analyze(optimizedText);
+
+                    const stats = this.fallback.buildStats(input, optimizedText, engineTag, analysis);
+                    const formats = this.fallback.generateFormats(optimizedText, analysis, options, input);
+
+                    const result = {
+                        original: input,
+                        optimized: optimizedText,
+                        compressed: optimizedText,
+                        ...formats,
+                        stats,
+                        analysis,
+                        meta: { method: engineTag }
+                    };
+
+                    this.currentResult = result;
+                    await this.history.addEntry(input, optimizedText, 'rule-engine', stats.method, analysis);
+
+                    this.updateOutputTab();
+                    this.updateOutputStats(result);
+                    this.updateDashboard(result);
+
+                    this.originalCompare.textContent = Utils.truncate(input, 80);
+                    this.optimizedCompare.textContent = Utils.truncate(result.optimized, 80);
+
+                    const origTokens = Utils.estimateTokens(input);
+                    const optTokens = Utils.estimateTokens(result.optimized);
+                    const saved = origTokens - optTokens;
+                    this.tokenDiff.textContent = `${saved >= 0 ? '💾' : '📈'} ${Math.abs(saved)} tokens ${saved >= 0 ? 'saved' : 'added'}`;
+                    this.tokenDiff.style.color = saved >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                    this.compressionDiff.textContent = `${result.stats.compression || 0}%`;
+                    this.semanticPreserved.textContent = `${result.stats.semantic || 0}%`;
+                    this.methodStatus.textContent = '⚡ Local Engine';
+
+                    const insightParts = [];
+                    if (analysis.intent && analysis.intent !== 'general') insightParts.push(
+                        `Intent: <span class="highlight">${analysis.intent}</span>`);
+                    if (analysis.domain) insightParts.push(
+                        `Domain: <span class="highlight-purple">${analysis.domain}</span>`);
+                    if (analysis.entities && analysis.entities.length) insightParts.push(
+                        `Entities: <span class="highlight">${analysis.entities.slice(0, 3).join(', ')}</span>`);
+                    if (analysis.constraints && analysis.constraints.length) insightParts.push(
+                        `Constraints: <span class="highlight">${analysis.constraints.join(', ')}</span>`);
+                    if (analysis.complexity) insightParts.push(
+                        `Complexity: <span class="highlight">${analysis.complexity}</span>`);
+                    this.insightText.innerHTML = insightParts.length ? insightParts.join(' · ') :
+                        '⚡ Local rule engine analyzed and optimized your prompt.';
+
+                    const confidence = Math.round((analysis.confidence || 0.5) * 100);
+                    this.insightSummary.textContent =
+                        `🧠 Confidence: ${confidence}% | ${analysis.intent || 'General'} | Local Engine`;
+
+                    document.getElementById('outputBadge').textContent = '⚡ Local';
+                    document.getElementById('outputBadge').className = 'badge warning';
+
+                    this.refreshIntelligence(result.optimized, result.stats);
+
+                    const activeProf = this.professionChips ? this.professionChips.querySelector('.chip.active') :
+                        null;
+                    if (activeProf) this.renderPerspective(activeProf.dataset.id);
+                    const activeModel = this.modelChips ? this.modelChips.querySelector('.chip.active') : null;
+                    if (activeModel) this.renderModelOptimizer(activeModel.dataset.id);
+
+                } catch (err) {
+                    console.error(err);
+                    this.output.value = '⚠️ Error: ' + (err.message || 'Please try again.');
+                }
+                this.optimizeBtn.innerHTML = '<i class="fas fa-bolt"></i> Optimize';
+                this.optimizeBtn.disabled = false;
+            }
+
+            toggleVoice() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    alert('Voice input not supported in this browser.');
+                    return;
+                }
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!this.voiceRecognition) {
+                    this.voiceRecognition = new SpeechRecognition();
+                    this.voiceRecognition.lang = 'en-US';
+                    this.voiceRecognition.interimResults = true;
+                    this.voiceRecognition.continuous = false;
+                    this.voiceRecognition.onresult = (event) => {
+                        let transcript = '';
+                        for (let i = event.resultIndex; i < event.results.length; i++) transcript += event
+                            .results[i][0].transcript;
+                        this.input.value = transcript;
+                        this.updateInputStats();
+                        this.voiceBtn.classList.remove('voice-active');
+                        this.voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice';
+                        this.isRecording = false;
+                    };
+                    this.voiceRecognition.onerror = () => {
+                        this.voiceBtn.classList.remove('voice-active');
+                        this.voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice';
+                        this.isRecording = false;
+                    };
+                    this.voiceRecognition.onend = () => {
+                        this.voiceBtn.classList.remove('voice-active');
+                        this.voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice';
+                        this.isRecording = false;
+                    };
+                }
+                if (this.isRecording) {
+                    this.voiceRecognition.stop();
+                    this.voiceBtn.classList.remove('voice-active');
+                    this.voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice';
+                    this.isRecording = false;
+                } else {
+                    this.voiceRecognition.start();
+                    this.voiceBtn.classList.add('voice-active');
+                    this.voiceBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                    this.isRecording = true;
+                }
+            }
+
+            download(type) {
+                if (!this.currentResult) { alert('Please optimize first.'); return; }
+                let content = '',
+                    ext = '',
+                    mime = 'text/plain';
+                switch (type) {
+                    case 'txt':
+                        content = this.currentResult.optimized;
+                        ext = 'txt';
+                        break;
+                    case 'md':
+                        content = this.currentResult.markdown || this.currentResult.optimized;
+                        ext = 'md';
+                        mime = 'text/markdown';
+                        break;
+                    case 'json':
+                        content = this.currentResult.json || '{}';
+                        ext = 'json';
+                        mime = 'application/json';
+                        break;
+                    default:
+                        content = this.currentResult.optimized;
+                        ext = 'txt';
+                }
+                const blob = new Blob([content], { type: mime });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `promptguru_${Date.now()}.${ext}`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            autoSavePrompt() { localStorage.setItem('promptguru_offline_lastInput', this.input.value); }
+
+            toggleTheme() {
+                this.isDark = !this.isDark;
+                const root = document.documentElement;
+                if (this.isDark) {
+                    root.style.setProperty('--bg-primary', '#0a0a1a');
+                    root.style.setProperty('--bg-secondary', '#12122a');
+                    root.style.setProperty('--text-primary', '#f0f0ff');
+                    root.style.setProperty('--text-secondary', '#b0b0d0');
+                    this.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    root.style.setProperty('--bg-primary', '#f0f0ff');
+                    root.style.setProperty('--bg-secondary', '#e0e0f0');
+                    root.style.setProperty('--text-primary', '#0a0a1a');
+                    root.style.setProperty('--text-secondary', '#3a3a5a');
+                    this.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            }
+
+            async showHistory() {
+                this.historyCard.classList.remove('hidden');
+                const entries = await this.history.getHistory();
+                if (!entries || entries.length === 0) {
+                    this.historyList.innerHTML = '<p class="text-muted text-sm">No history yet.</p>';
+                    return;
+                }
+                let html = '';
+                entries.slice().reverse().forEach(entry => {
+                    const date = new Date(entry.timestamp).toLocaleString();
+                    const preview = Utils.truncate(entry.original, 50);
+                    const method = entry.method || 'unknown';
+                    html += `<div class="history-entry" data-id="${entry.id}">
+                                <div class="meta">
+                                    <span>${date}</span>
+                                    <span>${entry.model || 'unknown'} · ${method}${entry.intent ? ' · ' + entry.intent : ''}</span>
+                                </div>
+                                <div class="preview">${Utils.escapeHTML(preview)}</div>
+                            </div>`;
+                });
+                this.historyList.innerHTML = html;
+
+                this.historyList.querySelectorAll('.history-entry').forEach(el => {
+                    el.addEventListener('click', async () => {
+                        const id = parseInt(el.dataset.id, 10);
+                        const entries = await this.history.getHistory();
+                        const entry = entries.find(e => e.id === id);
+                        if (entry) {
+                            this.input.value = entry.original;
+                            this.updateInputStats();
+                            this.historyCard.classList.add('hidden');
+                            this.optimize();
+                        }
+                    });
+                });
+            }
+
+            initParticles() {
+                const canvas = document.getElementById('bg-canvas');
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                const count = 60;
+
+                function resize() { canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight; }
+                window.addEventListener('resize', resize);
+                resize();
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.size = Math.random() * 2.5 + 0.5;
+                        this.speedX = (Math.random() - 0.5) * 0.3;
+                        this.speedY = (Math.random() - 0.5) * 0.3;
+                        this.opacity = Math.random() * 0.25 + 0.05;
+                        this.hue = Math.random() * 60 + 180;
+                    }
+                    update() {
+                        this.x += this.speedX;
+                        this.y += this.speedY;
+                        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                    }
+                    draw() {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `hsla(${this.hue}, 80%, 60%, ${this.opacity})`;
+                        ctx.fill();
+                    }
+                }
+
+                for (let i = 0; i < count; i++) particles.push(new Particle());
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => { p.update();
+                        p.draw(); });
+                    for (let i = 0; i < particles.length; i++) {
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist < 120) {
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                const alpha = 0.03 * (1 - dist / 120);
+                                ctx.strokeStyle = `rgba(0, 229, 255, ${alpha})`;
+                                ctx.lineWidth = 0.4;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+        }
+
+        // ================================================================
+        //  BOOT
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new App();
+        });
+    </script>
+</body>
+</html>
+
